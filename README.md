@@ -50,14 +50,14 @@ Text here
 
 #### _LilyGo T-SIMCAM ESP32-S3_
 
-![alt text](LilyGo-T-SIMCAM-ESP32-S3.png)
+![alt text](images/LilyGo-T-SIMCAM-ESP32-S3.png)
 
 - **Role**: Camera inferencing and sending data to MCU_B
 - **Communication**: To be determined
 
 #### _Cucumber RS_
 
-![alt text](Cucumber-RS.png)
+![alt text](images/Cucumber-RS.png)
 
 - **Role**: Receiving data from MCU_A and controlling actuators
 - **Communication**: To be determined
@@ -77,11 +77,11 @@ Text here
 
 ## State Diagram
 
-![alt text](State-Diagram.png)
+![alt text](images/State-Diagram.png)
 
 ## System Architecture
 
-![alt text](System-Architecture.png)
+![alt text](images/System-Architecture.png)
 
 ---
 
