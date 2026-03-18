@@ -16,7 +16,7 @@ Text here
 | B    | 000 | University B    |
 | C    | 000 | University C    |
 | D    | 000 | University D    |
-| E    | 000 | University E    |
+| Kritsana Netpugdee    | 6814552795 | Kasetsart University    |
 
 ## Stakeholders
 
