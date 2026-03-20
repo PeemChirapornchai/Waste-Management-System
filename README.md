@@ -15,7 +15,7 @@ Text here
 | A    | 000 | University A    |
 | B    | 000 | University B    |
 | C    | 000 | University C    |
-| D    | 000 | University D    |
+| Jakapat Dungdee    | 6814552828 | Kasetsart UniversityD    |
 | Kritsana Netpugdee    | 6814552795 | Kasetsart University    |
 
 ## Stakeholders
