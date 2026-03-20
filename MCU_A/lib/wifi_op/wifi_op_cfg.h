@@ -9,8 +9,8 @@
 #define PAYLOAD_MAX 8 //Byte
 
 // MQTT
-const char* WIFI_SSID = "ASUS_TKN";
-const char* WIFI_PASSWORD = "16715454";
+const char* WIFI_SSID = "********";
+const char* WIFI_PASSWORD = "********";
 
 const char* MQTT_SERVER = "broker.emqx.io";
 const uint16_t MQTT_PORT = 1883;

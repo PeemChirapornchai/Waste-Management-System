@@ -3,10 +3,13 @@
 
 #ifdef WIFI_OP_EXPORT_H
 
+extern volatile uint8_t u8_recv_buff[PAYLOAD_MAX];
+extern volatile uint8_t u8_Message_flag;
+
 // ===== MQTT Callback =====
 static inline void callback(char* topic, byte* payload, unsigned int length) {
 
-  Serial.print("Message received: ");
+  //Serial.print("Message received: ");
 
   char buf[128];
   uint8_t u8_abuff[PAYLOAD_MAX];
@@ -15,23 +18,16 @@ static inline void callback(char* topic, byte* payload, unsigned int length) {
   memcpy(buf, payload, length);
   buf[length] = '\0';
 
-  Serial.println(buf);
+  //Serial.println(buf);
 
-  if (buf[0] == '1') {
-    digitalWrite(2, LOW);
-  } else {
-    digitalWrite(2, HIGH);
+  for (uint8_t u8i = 0; u8i < PAYLOAD_MAX; u8i++)
+  {
+    /* code */
+    u8_recv_buff[u8i] = buf[u8i];
   }
-  u8_abuff[0] = 0x6f;
-  u8_abuff[1] = 0x6b;
-  u8_abuff[2] = 0x61;
-  u8_abuff[3] = 0x79;
-  u8_abuff[4] = 0x79;
-  u8_abuff[5] = 0x79;
-  u8_abuff[6] = 0x79;
-  u8_abuff[7] = 0x79;
 
   WIFI_OP_MQTT_Send(u8_abuff);
+  u8_Message_flag = 1;
 }
 
 #endif /* WIFI_OP_EXPORT_H */
