@@ -2,6 +2,7 @@
 #define SERVO_MOTOR_H
 #include <Arduino.h>
 
+// Positions for the servo motor (Home, Left, Right)
 typedef enum
 {
     SERVO_HOME = 0,
