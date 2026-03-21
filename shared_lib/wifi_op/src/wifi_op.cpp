@@ -9,6 +9,13 @@ PubSubClient MQTTclient(ESPClient);
 uint8_t u8_recv_buff[PAYLOAD_MAX] __attribute__((aligned(4)));
 volatile uint8_t u8_Message_flag = 0;
 
+void WIFI_OP_init();
+void WIFI_OP_MQTT_Send(const uint8_t *u8buff);
+static void WIFI_OP_MQTT_Recv(uint8_t *u8buff);
+void WIFI_OP_MQTT_reconnectMQTT();
+void WIFI_OP_MQTT_init();
+void WIFI_OP_MQTT_connection();
+static inline void callback(char* topic, byte* payload, unsigned int length);
 
 void WIFI_OP_init()
 {
