@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <Servo.h>
 #include "servo_motor.h"
+#include "state.h"
 
 // FIXME: Change the number of servos and pins later if needed
 constexpr uint8_t SERVO_1_PIN = 18;
@@ -25,25 +26,30 @@ void servo_init()
     }
 };
 
-// FIXME: Change the angles for left, middle, and right positions
+// FIXME: Change the angles for home, non-bio, and bio positions
 void servo_turn(servo_dir_e dir)
 {
+    // FIXME: Add function for checking the servo position before moving the servo
+    // Check if servo is not attached before moving
+    // Checking if the servo ready to be moved or not (State)
+    state_transition(SERVO_STATE_MOVING);
     switch (dir)
     {
-    case servo_dir_e::SERVO_LEFT:
-        servo_1.write(0);
-        servo_2.write(180);
-        break;
-    case servo_dir_e::SERVO_MIDDLE:
+    case servo_dir_e::SERVO_HOME:
         servo_1.write(90);
         servo_2.write(90);
         break;
-    case servo_dir_e::SERVO_RIGHT:
+    case servo_dir_e::SERVO_NON_BIO:
+        servo_1.write(0);
+        servo_2.write(180);
+        break;
+    case servo_dir_e::SERVO_BIO:
         servo_1.write(180);
         servo_2.write(0);
         break;
     default:
         break;
     }
+    state_transition(SERVO_STATE_READY);
     return;
 };
