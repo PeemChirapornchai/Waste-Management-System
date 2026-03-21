@@ -1,15 +1,33 @@
 #define WIFI_OP_EXPORT_H
 #include "wifi_op_cfg.h"
 #include "wifi_op.h"
-#include "wifi_op_scb.h"
 
 WiFiClient ESPClient;
 PubSubClient MQTTclient(ESPClient);
 
-volatile uint8_t u8_recv_buff[PAYLOAD_MAX];
-volatile uint8_t u8_Message_flag=0;
+// Use heap_caps_malloc if PAYLOAD_MAX is large, or just static for small buffers
+// Use alignment for the S3's 32-bit bus efficiency
+uint8_t u8_recv_buff[PAYLOAD_MAX] __attribute__((aligned(4)));
+volatile uint8_t u8_Message_flag = 0;
+
 // ===== WiFi Connect =====
-void WIFI_OP_init() {
+void WIFI_OP_init();
+// ===== MQTT Send =====
+void WIFI_OP_MQTT_Send(const uint8_t *u8buff);
+// ===== MQTT Recv =====
+void WIFI_OP_MQTT_Recv(uint8_t *u8buff);
+// ===== MQTT Reconnect =====
+void WIFI_OP_MQTT_reconnectMQTT();
+// ===== Init Connect WIFI MQTT =====
+void WIFI_OP_MQTT_init();
+// ===== AUTO reconnect MQTT =====
+void WIFI_OP_MQTT_connection();
+// ===== MQTT Callback =====
+static inline void callback(char* topic, byte* payload, unsigned int length);
+
+// ===== WiFi Connect =====
+void WIFI_OP_init() 
+{
 
   Serial.println("Connecting WiFi...");
 
@@ -30,53 +48,64 @@ void WIFI_OP_init() {
   Serial.println(WiFi.localIP());
 }
 
+
+// ===== MQTT Send =====
 void WIFI_OP_MQTT_Send(const uint8_t *u8buff)
 {
   MQTTclient.publish(MQTT_TOPIC_PUBLISH, u8buff, PAYLOAD_MAX);
 }
 
+
+// ===== MQTT Recv =====
 void WIFI_OP_MQTT_Recv(uint8_t *u8buff)
 {
-  for (uint8_t u8i = 0; u8i < PAYLOAD_MAX; u8i++)
-  {
-    /* code */
-    u8buff[u8i] = u8_recv_buff[u8i];
-  }
+    // Directly copy the 8 bytes to the destination
+    memcpy(u8buff, (const void*)u8_recv_buff, PAYLOAD_MAX);
   
 }
-
 
 
 // ===== MQTT Reconnect =====
 void WIFI_OP_MQTT_reconnectMQTT() {
 
   while (!MQTTclient.connected()) {
-    Serial.print("Connecting to MQTT...");
+    // Get the MAC address to create a unique ID
+    String clientId = "ESP32S3-";
+    clientId += String(WiFi.macAddress()); 
 
-    if (MQTTclient.connect("balalee")) { //client.connect("esp32-client"); MQTTclient.connect("balalee")
+    Serial.print("Attempting MQTT connection as ");
+    Serial.println(clientId);
+
+    // Attempt to connect with the UNIQUE ID
+    if (MQTTclient.connect(clientId.c_str())) {
       Serial.println("connected");
-
       MQTTclient.subscribe(MQTT_TOPIC_SUBSCRIBE);
     } else {
       Serial.print("failed, rc=");
       Serial.print(MQTTclient.state());
-      Serial.println(" retry in 2 seconds");
-      delay(2000);
+      delay(5000);
     }
   }
 }
+
+
 // ===== Init Connect WIFI MQTT =====
 void WIFI_OP_MQTT_init() {
 
   WIFI_OP_init();
 
   MQTTclient.setServer(MQTT_SERVER, MQTT_PORT);
+
+#if RECV == 1
   MQTTclient.setCallback(callback);
+#endif
+
 }
+
 
 // ===== AUTO reconnect MQTT =====
 void WIFI_OP_MQTT_connection() {
-  uint8_t u8_recv[PAYLOAD_MAX];
+  
 
   // WiFi Status
   if (WiFi.status() != WL_CONNECTED)
@@ -90,22 +119,20 @@ void WIFI_OP_MQTT_connection() {
   }
   MQTTclient.loop();
 
+}
 
-  if (u8_Message_flag == 1)
-  {
-    WIFI_OP_MQTT_Recv(u8_recv);
-    /* code */
-    for (size_t i = 0; i < PAYLOAD_MAX; i++)
-    {
-      /* code */
-      size_t flashSize = u8_recv[i];
-      Serial.printf("%x", flashSize);
-    }
-    Serial.printf("\n");
-    u8_Message_flag=0;
-  }
-  
 
-  
+// ===== MQTT Callback =====
+static inline void callback(char* topic, byte* payload, unsigned int length) 
+{
+  //Serial.print("Message received: ");
+  // Safety check for buffer size
+  uint8_t copy_len = (length < PAYLOAD_MAX) ? length : (PAYLOAD_MAX - 1); // prevent overflow
 
+  //Direct Copy
+  memcpy((void*)u8_recv_buff, payload, copy_len);
+  //u8_recv_buff[copy_len] = '\0';
+
+  //WIFI_OP_MQTT_Send(u8_recv_buff); 
+  u8_Message_flag = 1;
 }
