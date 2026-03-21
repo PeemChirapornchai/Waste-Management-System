@@ -1,17 +1,15 @@
 #include <Arduino.h>
-#include "wifi.h"
+#include <wifi_op.h>
 #include "servo_motor.h"
-#include "mqtt.h"
 
 void setup()
 {
     Serial.begin(115200);
-    // wifi_setup();
     servo_init();
-    mqtt_setup();
+    WIFI_OP_MQTT_init();
 };
 
 void loop()
 {
-    // put your main code here, to run repeatedly:
+    WIFI_OP_MQTT_connection();
 }
