@@ -19,6 +19,13 @@ void WIFI_OP_init();
 void WIFI_OP_MQTT_Send(const uint8_t *u8buff);
 
 /**
+ @brief Receive data over MQTT.
+
+ @param u8buff A pointer to the buffer containing the data to be receive. The buffer should be of size PAYLOAD_MAX.
+ */
+void WIFI_OP_MQTT_Recv(const uint8_t *u8buff);
+
+/**
  @brief Reconnects to the MQTT broker if the connection is lost.
  */
 void WIFI_OP_MQTT_reconnectMQTT();
