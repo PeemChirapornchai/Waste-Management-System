@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <Servo.h>
-#include "servo.h"
+#include "servo_motor.h"
 
 // FIXME: Change the number of servos and pins later if needed
 constexpr uint8_t SERVO_1_PIN = 18;
@@ -24,13 +24,6 @@ void servo_init()
         Serial.println("Error: Failed to attach servo_2 to pin 19");
     }
 };
-
-typedef enum
-{
-    SERVO_LEFT = 0,
-    SERVO_MIDDLE = 1,
-    SERVO_RIGHT = 2
-} servo_dir_e;
 
 // FIXME: Change the angles for left, middle, and right positions
 void servo_turn(servo_dir_e dir)

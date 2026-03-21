@@ -11,10 +11,10 @@ static const char *WIFI_PASSWORD = "********";
 static const char *MQTT_SERVER = "broker.emqx.io";
 static const uint16_t MQTT_PORT = 1883;
 
-#define MQTT_TOPIC_BASE "taist/aiot/listening"
-#define MQTT_TOPIC_SUBSCRIBE MQTT_TOPIC_BASE "/MCUB2A"
-#define MQTT_TOPIC_PUBLISH MQTT_TOPIC_BASE
+#define MQTT_TOPIC_BASE "waste-management-system"
+#define MQTT_TOPIC_SUBSCRIBE MQTT_TOPIC_BASE "/camera-data"
+#define MQTT_TOPIC_PUBLISH MQTT_TOPIC_BASE "/servo-data"
 
-static const char *MQTT_CLIENT_ID = "servo-esp32-client";
+static const char *MQTT_CLIENT_ID = "mcu-servo-client";
 
 #endif

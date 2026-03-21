@@ -1,12 +1,14 @@
 #include <Arduino.h>
 #include <wifi_op.h>
+#include "wifi_op_cfg.h"
 #include "servo_motor.h"
 
 void setup()
 {
     Serial.begin(115200);
-    servo_init();
+    WIFI_OP_init();
     WIFI_OP_MQTT_init();
+    servo_init();
 };
 
 void loop()
