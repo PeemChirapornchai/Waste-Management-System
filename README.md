@@ -10,13 +10,13 @@ Text here
 
 ## Team Members
 
-| Name | ID  | University Host |
-| ---- | --- | --------------- |
-| A    | 000 | University A    |
-| B    | 000 | University B    |
-| C    | 000 | University C    |
-| Jakapat Dungdee    | 6814552825 | Kasetsart University |
-| Kritsana Netpugdee    | 6814552795 | Kasetsart University    |
+| Name                | ID         | University Host      |
+| ------------------- | ---------- | -------------------- |
+| A                   | 000        | University A         |
+| B                   | 000        | University B         |
+| Purin Chirapornchai | 6814552809 | Kasetsart University |
+| Jakapat Dungdee     | 6814552825 | Kasetsart University |
+| Kritsana Netpugdee  | 6814552795 | Kasetsart University |
 
 ## Stakeholders
 
