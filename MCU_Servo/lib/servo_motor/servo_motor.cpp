@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <ESP32Servo.h>
 #include "servo_motor.h"
+#include "state.h"
+#include "state.h"
 
 constexpr uint8_t SERVO_1_PIN = 18;
 constexpr uint8_t SERVO_2_PIN = 19;
@@ -55,6 +57,7 @@ void servo_turn(servo_dir_e dir)
     // Always check for physical knob adjustments before moving
     servo_calibrate_init_angle();
 
+    state_transition(SERVO_STATE_MOVING);
     switch (dir)
     {
     case SERVO_HOME:
@@ -72,6 +75,16 @@ void servo_turn(servo_dir_e dir)
     default:
         break;
     }
+    delay(1000); // Allow time for the servos to reach the position
+    // TODO: Add fixed time delay for the trash to drop
+    servo_return_to_home();
+}
+
+void servo_return_to_home()
+{
+    servo_turn(SERVO_HOME);
+    // Check if the servos have reached the home position before transitioning state
+    state_transition(SERVO_STATE_READY);
 }
 
 int servo_get_current_angle(uint8_t id)
