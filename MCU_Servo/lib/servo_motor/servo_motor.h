@@ -2,12 +2,11 @@
 #define SERVO_MOTOR_H
 #include <Arduino.h>
 
-// TODO: Changing the enum values for easier to understand.
 typedef enum
 {
-    SERVO_LEFT = 0,   // Normal Trash position
-    SERVO_MIDDLE = 1, // Default position
-    SERVO_RIGHT = 2   // Recyclable Trash position
+    SERVO_HOME = 0,
+    SERVO_NON_BIO = 1,
+    SERVO_BIO = 2
 } servo_dir_e;
 
 void servo_init();

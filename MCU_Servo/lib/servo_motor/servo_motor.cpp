@@ -32,9 +32,9 @@ void servo_init()
 
     pinMode(INIT_ADJUST_PIN, INPUT);
 
-    // Initial calibration and set to middle
+    // Initial calibration and set to home
     servo_calibrate_init_angle();
-    servo_turn(SERVO_MIDDLE);
+    servo_turn(SERVO_HOME);
 }
 
 void servo_calibrate_init_angle()
@@ -57,15 +57,15 @@ void servo_turn(servo_dir_e dir)
 
     switch (dir)
     {
-    case SERVO_MIDDLE:
+    case SERVO_HOME:
         servo_1.write(base_angle_1);
         servo_2.write(base_angle_2);
         break;
-    case SERVO_LEFT: // Normal Trash
+    case SERVO_NON_BIO: // Normal Trash
         servo_1.write(base_angle_1 - 45);
         servo_2.write(base_angle_2 + 45);
         break;
-    case SERVO_RIGHT: // Recyclable/Bio Trash
+    case SERVO_BIO: // Recyclable/Bio Trash
         servo_1.write(base_angle_1 + 45);
         servo_2.write(base_angle_2 - 45);
         break;
@@ -76,10 +76,6 @@ void servo_turn(servo_dir_e dir)
 
 int servo_get_current_angle(uint8_t id)
 {
-    if (id == 1)
-        return servo_1.read();
-    if (id == 2)
-        return servo_2.read();
     if (id == 1)
         return servo_1.read();
     if (id == 2)
