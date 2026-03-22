@@ -7,8 +7,6 @@ typedef enum
 {
     SERVO_HOME = 0,
     SERVO_NON_BIO = 1,
-    SERVO_BIO = 2 SERVO_HOME = 0,
-    SERVO_NON_BIO = 1,
     SERVO_BIO = 2
 } servo_dir_e;
 
