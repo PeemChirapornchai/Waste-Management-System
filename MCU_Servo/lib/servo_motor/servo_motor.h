@@ -5,15 +5,9 @@
 // TODO: Changing the enum values for easier to understand.
 typedef enum
 {
-<<<<<<< HEAD
     SERVO_LEFT = 0,   // Normal Trash position
     SERVO_MIDDLE = 1, // Default position
     SERVO_RIGHT = 2   // Recyclable Trash position
-=======
-    SERVO_LEFT = 0, // Normal Trash position
-    SERVO_MIDDLE = 1, // Default position
-    SERVO_RIGHT = 2 // Recyclable Trash position
->>>>>>> 2d57770749f586138550136f0a9f31d9251d77f5
 } servo_dir_e;
 
 void servo_init();
