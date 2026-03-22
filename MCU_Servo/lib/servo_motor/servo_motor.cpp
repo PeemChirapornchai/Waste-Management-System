@@ -2,6 +2,7 @@
 #include <ESP32Servo.h>
 #include "servo_motor.h"
 #include "state.h"
+#include "state.h"
 
 constexpr uint8_t SERVO_1_PIN = 18;
 constexpr uint8_t SERVO_2_PIN = 19;

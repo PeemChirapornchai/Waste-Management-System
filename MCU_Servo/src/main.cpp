@@ -3,6 +3,7 @@
 #include "wifi_op_cfg.h"
 #include "servo_motor.h"
 #include "state.h"
+<<<<<<< HEAD
 
 extern volatile servo_state_e current_state;
 extern volatile uint8_t u8_Message_flag;
@@ -12,6 +13,20 @@ void setup()
 {
     Serial.begin(115200); // Initialize serial communication for debugging (printf functions)
     state_transition(SERVO_STATE_INIT);
+=======
+
+void setup()
+{
+    Serial.begin(115200);
+
+    // Wifi Connecting
+    WIFI_OP_init();
+
+    // Connecting to MQTT Server
+    WIFI_OP_MQTT_init();
+
+    // Servo Initialization
+>>>>>>> 3b8a5bac0b654bf16aa1565a201d79c2b3daf265
     servo_init();
     WIFI_OP_MQTT_init();
     state_transition(SERVO_STATE_READY);
@@ -21,6 +36,7 @@ void loop()
 {
     WIFI_OP_MQTT_connection();
 
+<<<<<<< HEAD
     if (u8_Message_flag == 1)
     {
         // 1. Read directly from the team's buffer
@@ -74,3 +90,11 @@ void loop()
         }
     }
 }
+=======
+    /*
+    1) Check for MQTT messages and update state accordingly
+    2) Move servo based on received MQTT messages and update state accordingly
+    3) Return home and Ready for next command
+    */
+}
+>>>>>>> 3b8a5bac0b654bf16aa1565a201d79c2b3daf265
