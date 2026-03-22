@@ -4,6 +4,7 @@
 typedef enum servo_state
 {
     SERVO_STATE_IDLE = 0,
+    SERVO_STATE_INIT,
     SERVO_STATE_READY,
     SERVO_STATE_MOVING,
     SERVO_STATE_AT_POSITION
