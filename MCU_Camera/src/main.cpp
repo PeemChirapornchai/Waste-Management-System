@@ -91,6 +91,10 @@ void loop()
             // TODO: WIFI_OP_MQTT_Send((const uint8_t*)bb.label);
         }
     }
+    if (!found) {
+        Serial.println("No objects detected.");
+    }
+    delay(2000);
     // WIFI_OP_MQTT_connection();
 }
 
