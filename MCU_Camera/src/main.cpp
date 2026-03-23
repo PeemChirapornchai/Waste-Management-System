@@ -2,7 +2,7 @@
 #include "main.h"
 #include "hw_camera.h"
 #include <Waste_Management_Project_inferencing.h> // เปลี่ยนเป็นชื่อไฟล์ .h ของคุณ
-
+#include "edge-impulse-sdk/dsp/image/image.hpp"
 
 static uint16_t u16_idle;
 // Setup and Loop Functions
