@@ -28,6 +28,7 @@ void setup()
     
     // PSRAM initialization
     if (psramInit()) {
+        snapshot_buf = (uint8_t*)ps_malloc(BMP_BUF_SIZE);
         if (snapshot_buf != NULL) {
             Serial.printf("PSRAM initialized. Buffer allocated: %d bytes\n", BMP_BUF_SIZE);
         } else {
