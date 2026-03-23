@@ -68,7 +68,22 @@ void loop()
     // WIFI_OP_MQTT_connection();
 }
 
-
+void ei_prepare_feature(uint8_t *img_buf, signal_t *signal) {
+    signal->total_length = EI_CLASSIFIER_INPUT_WIDTH * EI_CLASSIFIER_INPUT_HEIGHT;
+    signal->get_data = &ei_get_feature_callback;
+    // if the camera frame buffer size is different from the classifier input size, crop and interpolate the image to fit the classifier input
+    if ((EI_CAMERA_RAW_FRAME_BUFFER_ROWS != EI_CLASSIFIER_INPUT_WIDTH) || 
+        (EI_CAMERA_RAW_FRAME_BUFFER_COLS != EI_CLASSIFIER_INPUT_HEIGHT)) {
+        
+        ei::image::processing::crop_and_interpolate_rgb888(
+            img_buf,
+            EI_CAMERA_RAW_FRAME_BUFFER_COLS,
+            EI_CAMERA_RAW_FRAME_BUFFER_ROWS,
+            img_buf,
+            EI_CLASSIFIER_INPUT_WIDTH,
+            EI_CLASSIFIER_INPUT_HEIGHT);
+    }
+}
 
 int ei_get_feature_callback(size_t offset, size_t length, float *out_ptr) {
     size_t pixel_ix = offset * 3;
