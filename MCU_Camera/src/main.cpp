@@ -4,6 +4,14 @@
 #include <Waste_Management_Project_inferencing.h> // เปลี่ยนเป็นชื่อไฟล์ .h ของคุณ
 #include "edge-impulse-sdk/dsp/image/image.hpp"
 
+
+#define TAG     "main"
+#define EI_CAMERA_RAW_FRAME_BUFFER_COLS           240
+#define EI_CAMERA_RAW_FRAME_BUFFER_ROWS           240
+#define EI_CAMERA_FRAME_BYTE_SIZE                 3
+#define BMP_BUF_SIZE                             (EI_CAMERA_RAW_FRAME_BUFFER_COLS * EI_CAMERA_RAW_FRAME_BUFFER_ROWS * EI_CAMERA_FRAME_BYTE_SIZE)
+
+
 static uint16_t u16_idle;
 // Setup and Loop Functions
 void setup()
