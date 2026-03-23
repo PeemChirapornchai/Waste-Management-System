@@ -1,7 +1,7 @@
 #define MAIN_H__EXPORT_H
 #include "main.h"
 #include "hw_camera.h"
-#include <Waste_Management_Project_inferencing.h> // เปลี่ยนเป็นชื่อไฟล์ .h ของคุณ
+#include <Waste_Management_Project_inferencing.h>
 #include "edge-impulse-sdk/dsp/image/image.hpp"
 
 
@@ -39,20 +39,26 @@ void setup()
         Serial.println("PSRAM not found! System halted.");
         while(1);
     }
-    
+
     hw_camera_init();
     print_memory();
     Serial.println("Setup Complete.");
-    
     // Connect to server
     // WIFI_OP_MQTT_init();
-    
 }
 
 void loop()
 {
     u16_idle++;
-    // size_t flashSize = u16_idle;
-    // Serial.printf("IDLE: %d\n", flashSize);
+    uint32_t width, height;
+    uint32_t Tstart, elapsed_time;
+
+    Serial.println("\n>>> Taking snapshot...");
+    Tstart = millis();
+    // Take snapshot and convert to BMP format
+    hw_camera_raw_snapshot(snapshot_buf, &width, &height);
+
+
+
     WIFI_OP_MQTT_connection();
 }
