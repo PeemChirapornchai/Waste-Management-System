@@ -6,14 +6,14 @@
 
 
 #define TAG     "main"
+// camera settings
 #define EI_CAMERA_RAW_FRAME_BUFFER_COLS           240
 #define EI_CAMERA_RAW_FRAME_BUFFER_ROWS           240
 #define EI_CAMERA_FRAME_BYTE_SIZE                 3
 #define BMP_BUF_SIZE                             (EI_CAMERA_RAW_FRAME_BUFFER_COLS * EI_CAMERA_RAW_FRAME_BUFFER_ROWS * EI_CAMERA_FRAME_BYTE_SIZE)
-
-
+// static variables
+static uint8_t *snapshot_buf = nullptr;
 static uint16_t u16_idle;
-// Setup and Loop Functions
 void setup()
 {
     Serial.begin(115200);
