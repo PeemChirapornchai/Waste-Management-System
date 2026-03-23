@@ -14,6 +14,11 @@
 // static variables
 static uint8_t *snapshot_buf = nullptr;
 static uint16_t u16_idle;
+// function prototypes
+void print_memory(void);
+void ei_prepare_feature(uint8_t *img_buf, signal_t *signal);
+int ei_get_feature_callback(size_t offset, size_t length, float *out_ptr);
+
 void setup()
 {
     Serial.begin(115200);
