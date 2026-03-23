@@ -41,6 +41,8 @@ void setup()
     }
     
     hw_camera_init();
+    print_memory();
+    Serial.println("Setup Complete.");
     
     // Connect to server
     // WIFI_OP_MQTT_init();
