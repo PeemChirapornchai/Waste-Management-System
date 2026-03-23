@@ -55,9 +55,8 @@ void loop()
 
     Serial.println("\n>>> Taking snapshot...");
     Tstart = millis();
-    // 1. Take snapshot and convert to BMP format
+    // 1. Take snapshot and convert to BMP format and check if snapshot was successful
     hw_camera_raw_snapshot(snapshot_buf, &width, &height);
-    // Check if snapshot was failed
     if (width == 0 || height == 0) {
         Serial.println("Camera capture failed, retrying...");
         delay(1000);
@@ -67,13 +66,12 @@ void loop()
     Serial.println("Preparing features...");
     signal_t signal;
     ei_prepare_feature(snapshot_buf, &signal);
-    // 3. Run inference
+    // 3. Run inference and check if inference was successful
     Serial.println("Running Classification...");
     ei_impulse_result_t result = { 0 };
     Tstart = millis();
     EI_IMPULSE_ERROR err = run_classifier(&signal, &result, false);
     elapsed_time = millis() - Tstart;
-    // Check if inference was failed
     if (err != EI_IMPULSE_OK) {
         Serial.printf("Inference failed: %d\n", err);
         return;
@@ -99,16 +97,16 @@ void loop()
     // WIFI_OP_MQTT_connection();
 }
 
-
+// Helper function to print free memory (Heap and PSRAM)
 void print_memory() {
     Serial.printf("Free Heap: %u | Free PSRAM: %u\n", ESP.getFreeHeap(), ESP.getFreePsram());
 }
 
-
+// Helper function to prepare image features (Resize/Crop) for AI model
 void ei_prepare_feature(uint8_t *img_buf, signal_t *signal) {
     signal->total_length = EI_CLASSIFIER_INPUT_WIDTH * EI_CLASSIFIER_INPUT_HEIGHT;
     signal->get_data = &ei_get_feature_callback;
-    // if the camera frame buffer size is different from the classifier input size, crop and interpolate the image to fit the classifier input
+    // If camera resolution doesn't match AI input size, perform crop and interpolate
     if ((EI_CAMERA_RAW_FRAME_BUFFER_ROWS != EI_CLASSIFIER_INPUT_WIDTH) || 
         (EI_CAMERA_RAW_FRAME_BUFFER_COLS != EI_CLASSIFIER_INPUT_HEIGHT)) {
         
@@ -121,14 +119,14 @@ void ei_prepare_feature(uint8_t *img_buf, signal_t *signal) {
             EI_CLASSIFIER_INPUT_HEIGHT);
     }
 }
-
+// Callback function used by Edge Impulse to fetch and normalize image data
 int ei_get_feature_callback(size_t offset, size_t length, float *out_ptr) {
     size_t pixel_ix = offset * 3;
     size_t pixels_left = length;
     size_t out_ptr_ix = 0;
 
     while (pixels_left != 0) {
-        // Convert RGB888 to RGB565 and store in output buffer
+        // Pack RGB888 channels into a single float value (0xRRGGBB)
         out_ptr[out_ptr_ix] = (snapshot_buf[pixel_ix] << 16) + 
                               (snapshot_buf[pixel_ix + 1] << 8) + 
                               snapshot_buf[pixel_ix + 2];
