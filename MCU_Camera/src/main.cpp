@@ -40,6 +40,8 @@ void setup()
         while(1);
     }
     
+    hw_camera_init();
+    
     // Connect to server
     // WIFI_OP_MQTT_init();
     
