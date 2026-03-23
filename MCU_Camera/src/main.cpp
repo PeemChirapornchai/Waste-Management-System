@@ -65,5 +65,24 @@ void loop()
     }
 
 
-    WIFI_OP_MQTT_connection();
+    // WIFI_OP_MQTT_connection();
+}
+
+
+
+int ei_get_feature_callback(size_t offset, size_t length, float *out_ptr) {
+    size_t pixel_ix = offset * 3;
+    size_t pixels_left = length;
+    size_t out_ptr_ix = 0;
+
+    while (pixels_left != 0) {
+        // Convert RGB888 to RGB565 and store in output buffer
+        out_ptr[out_ptr_ix] = (snapshot_buf[pixel_ix] << 16) + 
+                              (snapshot_buf[pixel_ix + 1] << 8) + 
+                              snapshot_buf[pixel_ix + 2];
+        out_ptr_ix++;
+        pixel_ix += 3;
+        pixels_left--;
+    }
+    return 0;
 }
