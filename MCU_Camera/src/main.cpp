@@ -94,12 +94,15 @@ void loop()
     if (!found) {
         Serial.println("No objects detected.");
     }
+    print_memory();
     delay(2000);
     // WIFI_OP_MQTT_connection();
 }
 
 
-
+void print_memory() {
+    Serial.printf("Free Heap: %u | Free PSRAM: %u\n", ESP.getFreeHeap(), ESP.getFreePsram());
+}
 
 
 void ei_prepare_feature(uint8_t *img_buf, signal_t *signal) {
