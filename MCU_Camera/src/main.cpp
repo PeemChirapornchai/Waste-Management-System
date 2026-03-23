@@ -22,11 +22,26 @@ int ei_get_feature_callback(size_t offset, size_t length, float *out_ptr);
 void setup()
 {
     Serial.begin(115200);
-    delay(1000); // Short delay to ensure serial is ready
-    // check Env
+    while(!Serial) { delay(10); } // wait for serial port to connect.
+    
+    Serial.println("\n--- WASTE MANAGEMENT SYSTEM STARTING ---");
+    
+    // PSRAM initialization
+    if (psramInit()) {
+        if (snapshot_buf != NULL) {
+            Serial.printf("PSRAM initialized. Buffer allocated: %d bytes\n", BMP_BUF_SIZE);
+        } else {
+            Serial.println("PSRAM allocation FAILED!");
+            while(1);
+        }
+    } else {
+        Serial.println("PSRAM not found! System halted.");
+        while(1);
+    }
+    
     // Connect to server
-    WIFI_OP_MQTT_init();
-    // Init Task
+    // WIFI_OP_MQTT_init();
+    
 }
 
 void loop()
