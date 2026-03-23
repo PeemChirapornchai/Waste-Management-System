@@ -1,5 +1,8 @@
 #define MAIN_H__EXPORT_H
 #include "main.h"
+#include "hw_camera.h"
+#include <Waste_Management_Project_inferencing.h> // เปลี่ยนเป็นชื่อไฟล์ .h ของคุณ
+
 
 static uint16_t u16_idle;
 // Setup and Loop Functions
