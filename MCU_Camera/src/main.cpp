@@ -73,6 +73,11 @@ void loop()
     Tstart = millis();
     EI_IMPULSE_ERROR err = run_classifier(&signal, &result, false);
     elapsed_time = millis() - Tstart;
+    // Check if inference was failed
+    if (err != EI_IMPULSE_OK) {
+        Serial.printf("Inference failed: %d\n", err);
+        return;
+    }
     // WIFI_OP_MQTT_connection();
 }
 
