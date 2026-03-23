@@ -67,7 +67,12 @@ void loop()
     Serial.println("Preparing features...");
     signal_t signal;
     ei_prepare_feature(snapshot_buf, &signal);
-
+    // Run inference
+    Serial.println("Running Classification...");
+    ei_impulse_result_t result = { 0 };
+    Tstart = millis();
+    EI_IMPULSE_ERROR err = run_classifier(&signal, &result, false);
+    elapsed_time = millis() - Tstart;
     // WIFI_OP_MQTT_connection();
 }
 
