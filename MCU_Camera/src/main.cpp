@@ -63,10 +63,17 @@ void loop()
         delay(1000);
         return;
     }
-
+    // Prepare features for inference
+    Serial.println("Preparing features...");
+    signal_t signal;
+    ei_prepare_feature(snapshot_buf, &signal);
 
     // WIFI_OP_MQTT_connection();
 }
+
+
+
+
 
 void ei_prepare_feature(uint8_t *img_buf, signal_t *signal) {
     signal->total_length = EI_CLASSIFIER_INPUT_WIDTH * EI_CLASSIFIER_INPUT_HEIGHT;
