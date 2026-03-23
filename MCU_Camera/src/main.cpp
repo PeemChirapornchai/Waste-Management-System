@@ -57,7 +57,12 @@ void loop()
     Tstart = millis();
     // Take snapshot and convert to BMP format
     hw_camera_raw_snapshot(snapshot_buf, &width, &height);
-
+    // Check if snapshot was failed
+    if (width == 0 || height == 0) {
+        Serial.println("Camera capture failed, retrying...");
+        delay(1000);
+        return;
+    }
 
 
     WIFI_OP_MQTT_connection();
