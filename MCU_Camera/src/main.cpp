@@ -55,7 +55,7 @@ void loop()
 
     Serial.println("\n>>> Taking snapshot...");
     Tstart = millis();
-    // Take snapshot and convert to BMP format
+    // 1. Take snapshot and convert to BMP format
     hw_camera_raw_snapshot(snapshot_buf, &width, &height);
     // Check if snapshot was failed
     if (width == 0 || height == 0) {
@@ -63,11 +63,11 @@ void loop()
         delay(1000);
         return;
     }
-    // Prepare features for inference
+    // 2. Prepare features for inference
     Serial.println("Preparing features...");
     signal_t signal;
     ei_prepare_feature(snapshot_buf, &signal);
-    // Run inference
+    // 3. Run inference
     Serial.println("Running Classification...");
     ei_impulse_result_t result = { 0 };
     Tstart = millis();
@@ -77,6 +77,19 @@ void loop()
     if (err != EI_IMPULSE_OK) {
         Serial.printf("Inference failed: %d\n", err);
         return;
+    }
+    // 4. Display classification results
+    Serial.printf("Classification done in %d ms.\n", elapsed_time);
+    bool found = false;
+    for (size_t ix = 0; ix < result.bounding_boxes_count; ix++) {
+        auto bb = result.bounding_boxes[ix];
+        if (bb.value > 0.5) {
+            found = true;
+            Serial.printf("Found: %s (%.2f) [x:%u, y:%u, w:%u, h:%u]\n", 
+                          bb.label, bb.value, bb.x, bb.y, bb.width, bb.height);
+            
+            // TODO: WIFI_OP_MQTT_Send((const uint8_t*)bb.label);
+        }
     }
     // WIFI_OP_MQTT_connection();
 }
