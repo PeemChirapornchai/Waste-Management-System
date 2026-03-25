@@ -1,6 +1,5 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
-
 #include "wifi_op_cfg.h"
 #include "wifi_op.h"
 

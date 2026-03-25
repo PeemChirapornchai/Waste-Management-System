@@ -1,23 +1,19 @@
 #include <Arduino.h>
 #include <ESP32Servo.h>
 #include "servo_motor.h"
-#include "state.h"
-#include "state.h"
 
 constexpr uint8_t SERVO_1_PIN = 18;
 constexpr uint8_t SERVO_2_PIN = 19;
-constexpr uint8_t INIT_ADJUST_PIN = 4; // Analog pin connected to a potentiometer for calibration
+constexpr uint8_t INIT_ADJUST_PIN = 4;
 
 Servo servo_1;
 Servo servo_2;
 
-// The baseline neutral angle (modified by the INIT_ADJUST_PIN)
 int base_angle_1 = 90;
 int base_angle_2 = 90;
 
 void servo_init()
 {
-    // Required for ESP32 hardware PWM
     ESP32PWM::allocateTimer(0);
     ESP32PWM::allocateTimer(1);
 
@@ -33,58 +29,46 @@ void servo_init()
         Serial.println("Error: Failed to attach servo_2");
 
     pinMode(INIT_ADJUST_PIN, INPUT);
-
-    // Initial calibration and set to home
-    servo_calibrate_init_angle();
-    servo_turn(SERVO_HOME);
+    servo_return_to_home();
 }
 
 void servo_calibrate_init_angle()
 {
-    // Read the analog pin (ESP32-S2 standard Arduino map is 0-4095)
     int adc_val = analogRead(INIT_ADJUST_PIN);
-
-    // Map the ADC reading to a fine-tuning offset (-20 to +20 degrees)
     int offset = map(adc_val, 0, 4095, -20, 20);
 
-    // Apply offset (assuming servos face opposite directions mechanically)
     base_angle_1 = 90 + offset;
     base_angle_2 = 90 - offset;
 }
 
 void servo_turn(servo_dir_e dir)
 {
-    // Always check for physical knob adjustments before moving
     servo_calibrate_init_angle();
 
-    state_transition(SERVO_STATE_MOVING);
     switch (dir)
     {
     case SERVO_HOME:
         servo_1.write(base_angle_1);
         servo_2.write(base_angle_2);
         break;
-    case SERVO_NON_BIO: // Normal Trash
+    case SERVO_NON_BIO:
         servo_1.write(base_angle_1 - 45);
         servo_2.write(base_angle_2 + 45);
         break;
-    case SERVO_BIO: // Recyclable/Bio Trash
+    case SERVO_BIO:
         servo_1.write(base_angle_1 + 45);
         servo_2.write(base_angle_2 - 45);
         break;
     default:
         break;
     }
-    delay(1000); // Allow time for the servos to reach the position
-    // TODO: Add fixed time delay for the trash to drop
-    servo_return_to_home();
+
+    delay(1000);
 }
 
 void servo_return_to_home()
 {
     servo_turn(SERVO_HOME);
-    // Check if the servos have reached the home position before transitioning state
-    state_transition(SERVO_STATE_READY);
 }
 
 int servo_get_current_angle(uint8_t id)

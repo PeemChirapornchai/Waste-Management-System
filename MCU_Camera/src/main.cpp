@@ -4,13 +4,12 @@
 #include <Waste_Management_Project_inferencing.h>
 #include "edge-impulse-sdk/dsp/image/image.hpp"
 
-
-#define TAG     "main"
+#define TAG "main"
 // camera settings
-#define EI_CAMERA_RAW_FRAME_BUFFER_COLS           240
-#define EI_CAMERA_RAW_FRAME_BUFFER_ROWS           240
-#define EI_CAMERA_FRAME_BYTE_SIZE                 3
-#define BMP_BUF_SIZE                             (EI_CAMERA_RAW_FRAME_BUFFER_COLS * EI_CAMERA_RAW_FRAME_BUFFER_ROWS * EI_CAMERA_FRAME_BYTE_SIZE)
+#define EI_CAMERA_RAW_FRAME_BUFFER_COLS 240
+#define EI_CAMERA_RAW_FRAME_BUFFER_ROWS 240
+#define EI_CAMERA_FRAME_BYTE_SIZE 3
+#define BMP_BUF_SIZE (EI_CAMERA_RAW_FRAME_BUFFER_COLS * EI_CAMERA_RAW_FRAME_BUFFER_ROWS * EI_CAMERA_FRAME_BYTE_SIZE)
 // static variables
 static uint8_t *snapshot_buf = nullptr;
 static uint16_t u16_idle;
@@ -22,22 +21,33 @@ int ei_get_feature_callback(size_t offset, size_t length, float *out_ptr);
 void setup()
 {
     Serial.begin(115200);
-    while(!Serial) { delay(10); } // wait for serial port to connect.
-    
+    while (!Serial)
+    {
+        delay(10);
+    } // wait for serial port to connect.
+
     Serial.println("\n--- WASTE MANAGEMENT SYSTEM STARTING ---");
-    
+
     // PSRAM initialization
-    if (psramInit()) {
-        snapshot_buf = (uint8_t*)ps_malloc(BMP_BUF_SIZE);
-        if (snapshot_buf != NULL) {
+    if (psramInit())
+    {
+        snapshot_buf = (uint8_t *)ps_malloc(BMP_BUF_SIZE);
+        if (snapshot_buf != NULL)
+        {
             Serial.printf("PSRAM initialized. Buffer allocated: %d bytes\n", BMP_BUF_SIZE);
-        } else {
-            Serial.println("PSRAM allocation FAILED!");
-            while(1);
         }
-    } else {
+        else
+        {
+            Serial.println("PSRAM allocation FAILED!");
+            while (1)
+                ;
+        }
+    }
+    else
+    {
         Serial.println("PSRAM not found! System halted.");
-        while(1);
+        while (1)
+            ;
     }
 
     hw_camera_init();
@@ -57,7 +67,8 @@ void loop()
     Tstart = millis();
     // 1. Take snapshot and convert to BMP format and check if snapshot was successful
     hw_camera_raw_snapshot(snapshot_buf, &width, &height);
-    if (width == 0 || height == 0) {
+    if (width == 0 || height == 0)
+    {
         Serial.println("Camera capture failed, retrying...");
         delay(1000);
         return;
@@ -68,28 +79,32 @@ void loop()
     ei_prepare_feature(snapshot_buf, &signal);
     // 3. Run inference and check if inference was successful
     Serial.println("Running Classification...");
-    ei_impulse_result_t result = { 0 };
+    ei_impulse_result_t result = {0};
     Tstart = millis();
     EI_IMPULSE_ERROR err = run_classifier(&signal, &result, false);
     elapsed_time = millis() - Tstart;
-    if (err != EI_IMPULSE_OK) {
+    if (err != EI_IMPULSE_OK)
+    {
         Serial.printf("Inference failed: %d\n", err);
         return;
     }
     // 4. Display classification results
     Serial.printf("Classification done in %d ms.\n", elapsed_time);
     bool found = false;
-    for (size_t ix = 0; ix < result.bounding_boxes_count; ix++) {
+    for (size_t ix = 0; ix < result.bounding_boxes_count; ix++)
+    {
         auto bb = result.bounding_boxes[ix];
-        if (bb.value > 0.5) {
+        if (bb.value > 0.5)
+        {
             found = true;
-            Serial.printf("Found: %s (%.2f) [x:%u, y:%u, w:%u, h:%u]\n", 
+            Serial.printf("Found: %s (%.2f) [x:%u, y:%u, w:%u, h:%u]\n",
                           bb.label, bb.value, bb.x, bb.y, bb.width, bb.height);
-            
+
             // TODO: WIFI_OP_MQTT_Send((const uint8_t*)bb.label);
         }
     }
-    if (!found) {
+    if (!found)
+    {
         Serial.println("No objects detected.");
     }
     print_memory();
@@ -98,18 +113,21 @@ void loop()
 }
 
 // Helper function to print free memory (Heap and PSRAM)
-void print_memory() {
+void print_memory()
+{
     Serial.printf("Free Heap: %u | Free PSRAM: %u\n", ESP.getFreeHeap(), ESP.getFreePsram());
 }
 
 // Helper function to prepare image features (Resize/Crop) for AI model
-void ei_prepare_feature(uint8_t *img_buf, signal_t *signal) {
+void ei_prepare_feature(uint8_t *img_buf, signal_t *signal)
+{
     signal->total_length = EI_CLASSIFIER_INPUT_WIDTH * EI_CLASSIFIER_INPUT_HEIGHT;
     signal->get_data = &ei_get_feature_callback;
     // If camera resolution doesn't match AI input size, perform crop and interpolate
-    if ((EI_CAMERA_RAW_FRAME_BUFFER_ROWS != EI_CLASSIFIER_INPUT_WIDTH) || 
-        (EI_CAMERA_RAW_FRAME_BUFFER_COLS != EI_CLASSIFIER_INPUT_HEIGHT)) {
-        
+    if ((EI_CAMERA_RAW_FRAME_BUFFER_ROWS != EI_CLASSIFIER_INPUT_WIDTH) ||
+        (EI_CAMERA_RAW_FRAME_BUFFER_COLS != EI_CLASSIFIER_INPUT_HEIGHT))
+    {
+
         ei::image::processing::crop_and_interpolate_rgb888(
             img_buf,
             EI_CAMERA_RAW_FRAME_BUFFER_COLS,
@@ -120,15 +138,17 @@ void ei_prepare_feature(uint8_t *img_buf, signal_t *signal) {
     }
 }
 // Callback function used by Edge Impulse to fetch and normalize image data
-int ei_get_feature_callback(size_t offset, size_t length, float *out_ptr) {
+int ei_get_feature_callback(size_t offset, size_t length, float *out_ptr)
+{
     size_t pixel_ix = offset * 3;
     size_t pixels_left = length;
     size_t out_ptr_ix = 0;
 
-    while (pixels_left != 0) {
+    while (pixels_left != 0)
+    {
         // Pack RGB888 channels into a single float value (0xRRGGBB)
-        out_ptr[out_ptr_ix] = (snapshot_buf[pixel_ix] << 16) + 
-                              (snapshot_buf[pixel_ix + 1] << 8) + 
+        out_ptr[out_ptr_ix] = (snapshot_buf[pixel_ix] << 16) +
+                              (snapshot_buf[pixel_ix + 1] << 8) +
                               snapshot_buf[pixel_ix + 2];
         out_ptr_ix++;
         pixel_ix += 3;

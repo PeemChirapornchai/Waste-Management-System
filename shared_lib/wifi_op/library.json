@@ -1,7 +1,0 @@
-{
-  "name": "wifi_op",
-  "version": "1.0.0",
-  "description": "Shared WiFi and MQTT operation library",
-  "frameworks": "arduino",
-  "platforms": "espressif32"
-}

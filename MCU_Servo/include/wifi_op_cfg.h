@@ -5,16 +5,20 @@
 
 #define PAYLOAD_MAX 8
 
-static const char *WIFI_SSID = "********";
-static const char *WIFI_PASSWORD = "********";
+#ifndef WIFI_SSID
+#define WIFI_SSID "YourWiFiSSID"
+#endif
 
-static const char *MQTT_SERVER = "broker.emqx.io";
-static const uint16_t MQTT_PORT = 1883;
+#ifndef WIFI_PASSWORD
+#define WIFI_PASSWORD "YourWiFiPassword"
+#endif
+
+#ifndef MQTT_CLIENT_ID
+#define MQTT_CLIENT_ID "mcu-servo-client"
+#endif
 
 #define MQTT_TOPIC_BASE "waste-management-system"
 #define MQTT_TOPIC_SUBSCRIBE MQTT_TOPIC_BASE "/camera-data"
 #define MQTT_TOPIC_PUBLISH MQTT_TOPIC_BASE "/servo-data"
-
-static const char *MQTT_CLIENT_ID = "mcu-servo-client";
 
 #endif
