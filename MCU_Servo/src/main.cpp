@@ -58,10 +58,11 @@ void loop()
         snprintf((char *)tx_buffer, PAYLOAD_MAX, "%3d,%3d", ang1, ang2);
         WIFI_OP_MQTT_Send(tx_buffer, MQTT_DATA_TOPIC);
     */
+    delay(2000); // Simulate time taken for servo to move and stabilize
     servo_return_to_home();
     servo_state.step(SERVO_RETURN_HOME); // After returning home, step to SERVO_RETURN_HOME
-    // TODO: Check servo position before stepping to SERVO_READY, if not in expected position, set error state
+    delay(500);
     servo_state.step(SERVO_READY); // After checking position, step to SERVO_READY
-    // WIFI_OP_MQTT_Send(MQTT_CMD::READY, MQTT_COMMAND_TOPIC);
+
     u8_Message_flag = 0;
 }

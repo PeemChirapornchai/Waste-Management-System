@@ -56,7 +56,7 @@ void servo_turn(servo_dir_e dir)
         servo_2.write(base_angle_2 + 45);
         break;
     case SERVO_BIO:
-        servo_1.write(base_angle_1 + 45);
+        servo_1.write(base_angle_1 + 46);
         servo_2.write(base_angle_2 - 45);
         break;
     default:
