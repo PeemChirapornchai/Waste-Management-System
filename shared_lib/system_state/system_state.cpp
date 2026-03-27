@@ -41,6 +41,12 @@ void ServoState::step()
     Serial.printf("Servo state: %d\n", current_state);
 }
 
+void ServoState::step(servo_state_e new_state)
+{
+    current_state = new_state;
+    Serial.printf("Servo state: %d\n", current_state);
+}
+
 void ServoState::set_error()
 {
     current_state = SERVO_ERROR;

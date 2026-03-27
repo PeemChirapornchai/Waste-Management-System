@@ -1,5 +1,5 @@
-#ifndef WIFI_OP_H_
-#define WIFI_OP_H_
+#ifndef WIFI_OP_H
+#define WIFI_OP_H
 
 #include <Arduino.h>
 
@@ -15,8 +15,9 @@ void WIFI_OP_init();
  @brief Sends data over MQTT.
 
  @param u8buff A pointer to the buffer containing the data to be sent. The buffer should be of size PAYLOAD_MAX.
+ @param topic A pointer to the topic string to which the data should be published.
  */
-void WIFI_OP_MQTT_Send(const uint8_t *u8buff);
+void WIFI_OP_MQTT_Send(const uint8_t *u8buff, const char *topic);
 
 /**
  @brief Receive data over MQTT.

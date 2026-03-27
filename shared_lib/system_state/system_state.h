@@ -33,6 +33,7 @@ public:
     servo_state_e get_current_state() const;
     bool is_ready() const;
     void step();
+    void step(servo_state_e new_state);
     void set_error();
 };
 
