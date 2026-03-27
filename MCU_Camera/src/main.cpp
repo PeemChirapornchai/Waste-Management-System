@@ -27,7 +27,11 @@ void loop() {
     if (is_detected) {
         Serial.printf("Detected: %s with confidence %.2f\n", label, prob);
         Serial.printf("Location: x:%u, y:%u, w:%u, h:%u\n", x, y, w, h);
-        // WIFI_OP_MQTT_Send((const uint8_t*)label);
+        
+        // char payload[128];
+        // sprintf(payload, "{\"type\":\"%s\", \"conf\":%.2f}", label, prob);
+        // WIFI_OP_MQTT_Send(payload);
+
     } else {
         Serial.println("Nothing detected.");
     }
