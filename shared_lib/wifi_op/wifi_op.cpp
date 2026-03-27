@@ -2,6 +2,9 @@
 #include <PubSubClient.h>
 #include "wifi_op.h"
 
+#define WIFI_SSID "YourWiFiSSID"
+#define WIFI_PASSWORD "YourWiFiPassword"
+
 WiFiClient ESPClient;
 PubSubClient MQTTclient(ESPClient);
 uint8_t u8_recv_buff[PAYLOAD_MAX] __attribute__((aligned(4)));
