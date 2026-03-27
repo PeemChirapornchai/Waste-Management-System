@@ -32,7 +32,7 @@ void WIFI_OP_MQTT_Send(const uint8_t *u8buff, const char *topic)
     MQTTclient.publish(topic, u8buff, PAYLOAD_MAX);
 }
 
-static void WIFI_OP_MQTT_Recv(uint8_t *u8buff)
+void WIFI_OP_MQTT_Recv(uint8_t *u8buff)
 {
     memcpy(u8buff, (const void *)u8_recv_buff, PAYLOAD_MAX);
 }

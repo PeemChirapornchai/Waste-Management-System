@@ -5,7 +5,7 @@ namespace MQTT_CMD
 {
     // For Camera
     const char *BIO = "BIO";
-    const char *NON_BIO = "NON_BIO";
+    const char *NON_BIO = "N-BIO";
 
     // For Servo
     const char *READY = "READY";

@@ -2,6 +2,7 @@
 #include "wifi_op.h"
 #include "servo_motor.h"
 #include "system_state.h"
+#include "wifi_op.h"
 #include "mqtt_cmd.h"
 
 extern ServoState servo_state;
@@ -36,28 +37,23 @@ void loop()
 
     servo_state.step(SERVO_RECEIVE_COMMAND); // After receiving message, step to SERVO_RECEIVE_COMMAND
 
-    char messageStr[PAYLOAD_MAX + 1] = {0};
-    memcpy(messageStr, (const void *)u8_recv_buff, PAYLOAD_MAX);
+    WIFI_OP_MQTT_Recv(u8_recv_buff);
 
-    String command = String(messageStr);
-    Serial.print("Command Received: ");
-    Serial.println(command);
-
-    servo_state.step(SERVO_MOVE); // After moving servo, step to SERVO_MOVE
-    if (command == MQTT_CMD::BIO)
+    if (strcmp((char *)u8_recv_buff, MQTT_CMD::BIO) == 0)
     {
         servo_turn(SERVO_BIO);
+        servo_state.step(SERVO_MOVE); // After moving servo, step to SERVO_MOVE
     }
-    else if (command == MQTT_CMD::NON_BIO)
+    else if (strcmp((char *)u8_recv_buff, MQTT_CMD::NON_BIO) == 0)
     {
         servo_turn(SERVO_NON_BIO);
+        servo_state.step(SERVO_MOVE); // After moving servo, step to SERVO_MOVE
     }
 
-    servo_state.step(SERVO_MOVE); // After moving servo, step to SERVO_MOVE
-
+    /*
     int ang1 = servo_get_current_angle(1);
     int ang2 = servo_get_current_angle(2);
-    /*
+
         uint8_t tx_buffer[PAYLOAD_MAX] = {0};
         snprintf((char *)tx_buffer, PAYLOAD_MAX, "%3d,%3d", ang1, ang2);
         WIFI_OP_MQTT_Send(tx_buffer, MQTT_DATA_TOPIC);
@@ -66,5 +62,6 @@ void loop()
     servo_state.step(SERVO_RETURN_HOME); // After returning home, step to SERVO_RETURN_HOME
     // TODO: Check servo position before stepping to SERVO_READY, if not in expected position, set error state
     servo_state.step(SERVO_READY); // After checking position, step to SERVO_READY
+    // WIFI_OP_MQTT_Send(MQTT_CMD::READY, MQTT_COMMAND_TOPIC);
     u8_Message_flag = 0;
 }
