@@ -2,8 +2,8 @@
 #include <PubSubClient.h>
 #include "wifi_op.h"
 
-#define WIFI_SSID "YourWiFiSSID"
-#define WIFI_PASSWORD "YourWiFiPassword"
+#define WIFI_SSID "MOOOUD_2.4G"
+#define WIFI_PASSWORD "61906190"
 
 WiFiClient ESPClient;
 PubSubClient MQTTclient(ESPClient);
@@ -32,7 +32,8 @@ void WIFI_OP_init()
 
 void WIFI_OP_MQTT_Send(const uint8_t *u8buff, const char *topic)
 {
-    MQTTclient.publish(topic, u8buff, PAYLOAD_MAX);
+    // MQTTclient.publish(topic, u8buff, PAYLOAD_MAX);
+    MQTTclient.publish(topic, (char*)u8buff);
 }
 
 void WIFI_OP_MQTT_Recv(uint8_t *u8buff)
