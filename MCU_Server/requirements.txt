@@ -1,5 +1,6 @@
 Django>=4.2,<5.0
 opencv-python-headless
 numpy
+django-cors-headers
 paho-mqtt
 ultralytics
