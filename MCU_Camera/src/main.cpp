@@ -39,11 +39,11 @@ void loop()
         Serial.printf("Detected: %s with confidence %.2f\n", label, prob);
         Serial.printf("Location: x:%u, y:%u, w:%u, h:%u\n", x, y, w, h);
 
-        if (strcmp(label, "BIO") == 0) // FIXME: Change the label "BIO" "NON-BIO" according to label output
+        if (strcmp(label, "B") == 0) // FIXME: Change the label "BIO" "NON-BIO" according to label output
         {
             WIFI_OP_MQTT_Send((const uint8_t *)MQTT_CMD::BIO, MQTT_COMMAND_TOPIC);
         }
-        else if (strcmp(label, "NON-BIO") == 0)
+        else if (strcmp(label, "N") == 0)
         {
             WIFI_OP_MQTT_Send((const uint8_t *)MQTT_CMD::NON_BIO, MQTT_COMMAND_TOPIC);
         }
