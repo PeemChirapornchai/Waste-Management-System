@@ -2,7 +2,7 @@
 #include <ESP32Servo.h>
 #include "servo_motor.h"
 
-constexpr uint8_t SERVO_1_PIN = 18;
+constexpr uint8_t SERVO_1_PIN = 17;
 constexpr uint8_t SERVO_2_PIN = 19;
 constexpr uint8_t INIT_ADJUST_PIN = 4;
 
