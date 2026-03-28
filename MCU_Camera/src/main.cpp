@@ -12,16 +12,21 @@ void setup()
     while (!Serial)
     {
         delay(10);
-    } // wait for connection
+    } // wait for serial connection
 
     Serial.println("\n--- SYSTEM STARTING ---");
-    PSRAM_init();     // PSRAM init
-    hw_camera_init(); // Camera init
+
+    Serial.println("Connecting to WiFi and MQTT...");
+    WIFI_OP_init();        // WiFi init
+    WIFI_OP_MQTT_init();   // MQTT init
+    PSRAM_init();          // PSRAM init
+    hw_camera_init();      // Camera init
     Serial.println("System Ready!");
 }
 
 void loop()
 {
+    WIFI_OP_MQTT_connection();
     const char *label;
     float prob;
     uint32_t x, y, w, h;
