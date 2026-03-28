@@ -12,7 +12,7 @@ Text here
 
 | Name                | ID         | University Host      |
 | ------------------- | ---------- | -------------------- |
-| Worapob Wannatang   | 6814552841 | Kasetsart Universit  |
+| Worapob Wannatang   | 6814552841 | Kasetsart University |
 | B                   | 000        | University B         |
 | Purin Chirapornchai | 6814552809 | Kasetsart University |
 | Jakapat Dungdee     | 6814552825 | Kasetsart University |
