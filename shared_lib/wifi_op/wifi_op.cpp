@@ -2,6 +2,7 @@
 #include <PubSubClient.h>
 #include "wifi_op.h"
 
+// modify wifi setup
 #define WIFI_SSID "YourWiFiSSID"
 #define WIFI_PASSWORD "YourWiFiPassword"
 
