@@ -10,13 +10,13 @@ Text here
 
 ## Team Members
 
-| Name                | ID         | University Host      |
-| ------------------- | ---------- | -------------------- |
-| Worapob Wannatang   | 6814552841 | Kasetsart University |
-| B                   | 000        | University B         |
-| Purin Chirapornchai | 6814552809 | Kasetsart University |
-| Jakapat Dungdee     | 6814552825 | Kasetsart University |
-| Kritsana Netpugdee  | 6814552795 | Kasetsart University |
+| Name                 | ID         | University Host      |
+| -------------------- | ---------- | -------------------- |
+| Worapob Wannatang    | 6814552841 | Kasetsart University |
+| Purin Chirapornchai  | 6814552809 | Kasetsart University |
+| Jakapat Dungdee      | 6814552825 | Kasetsart University |
+| Kritsana Netpugdee   | 6814552795 | Kasetsart University |
+| Kaung Pyae Min Thein | 6822040256 | SIIT                 |
 
 ## Stakeholders
 
