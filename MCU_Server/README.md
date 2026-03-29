@@ -1,0 +1,2 @@
+Model Classification(https://github.com/boss4848/waste-detection)
+{0: 'battery', 1: 'can', 2: 'cardboard_bowl', 3: 'cardboard_box', 4: 'chemical_plastic_bottle', 5: 'chemical_plastic_gallon', 6: 'chemical_spray_can', 7: 'light_bulb', 8: 'paint_bucket', 9: 'plastic_bag', 10: 'plastic_bottle', 11: 'plastic_bottle_cap', 12: 'plastic_box', 13: 'plastic_cultery', 14: 'plastic_cup', 15: 'plastic_cup_lid', 16: 'reuseable_paper', 17: 'scrap_paper', 18: 'scrap_plastic', 19: 'snack_bag', 20: 'stick', 21: 'straw'}
