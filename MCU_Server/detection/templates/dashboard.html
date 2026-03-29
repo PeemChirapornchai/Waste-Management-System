@@ -1,59 +1,124 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Waste Management AI Dashboard</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1e1e2f; color: white; text-align: center; margin: 0; padding: 20px; }
-        .container { max-width: 800px; margin: auto; background: #2a2a40; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        h1 { color: #00e5ff; }
-        .feed-container { margin: 20px 0; background: #000; padding: 10px; border-radius: 10px; min-height: 400px; display: flex; align-items: center; justify-content: center; }
-        img { max-width: 100%; border-radius: 5px; }
-        .stats { display: flex; justify-content: space-around; margin-top: 20px; }
-        .stat-box { background: #3b3b58; padding: 15px 30px; border-radius: 10px; width: 40%; }
-        .stat-box h3 { margin: 0 0 10px 0; color: #a5a5cd; font-size: 14px; text-transform: uppercase; }
-        .stat-box p { margin: 0; font-size: 24px; font-weight: bold; color: #00e5ff; }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #1e1e2f;
+        color: white;
+        text-align: center;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        max-width: 800px;
+        margin: auto;
+        background: #2a2a40;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      }
+      h1 {
+        color: #00e5ff;
+      }
+      .feed-container {
+        margin: 20px 0;
+        background: #000;
+        padding: 10px;
+        border-radius: 10px;
+        min-height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      img {
+        max-width: 100%;
+        border-radius: 5px;
+      }
+      .stats {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 20px;
+      }
+      .stat-box {
+        background: #3b3b58;
+        padding: 15px 30px;
+        border-radius: 10px;
+        width: 40%;
+      }
+      .stat-box h3 {
+        margin: 0 0 10px 0;
+        color: #a5a5cd;
+        font-size: 14px;
+        text-transform: uppercase;
+      }
+      .stat-box p {
+        margin: 0;
+        font-size: 24px;
+        font-weight: bold;
+        color: #00e5ff;
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <div class="container">
-        <h1>♻️ AI Waste Sorting Dashboard</h1>
-        
-        <div class="feed-container">
-            <img id="camera-feed" src="/media/latest_frame.jpg" alt="Waiting for camera feed..." onerror="this.alt='Waiting for first frame...'">
-        </div>
+      <h1>♻️ AI Waste Sorting Dashboard</h1>
 
-        <div class="stats">
-            <div class="stat-box">
-                <h3>Detected Material</h3>
-                <p id="type-text">-</p>
-            </div>
-            <div class="stat-box">
-                <h3>System Action</h3>
-                <p id="action-text">-</p>
-            </div>
-        </div>
+      <div style="text-align: center; margin-top: 50px">
+        <h1>Waste Sorting System</h1>
+        <h2 id="waste-status" style="font-size: 3rem; transition: 0.3s">
+          Waiting for Camera...
+        </h2>
+      </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+
     <script>
-        // Function to refresh the image and data every 500 milliseconds
-        setInterval(() => {
-            // 1. Refresh Image 
-            // We add "?time=" with the current timestamp to bypass the browser's cache, forcing it to download the newest image
-            document.getElementById('camera-feed').src = '/media/latest_frame.jpg?time=' + new Date().getTime();
+      // 1. Connect to the public EMQX broker using WebSockets
+      const client = new Paho.MQTT.Client(
+        "broker.emqx.io",
+        8084,
+        "clientId_" + parseInt(Math.random() * 100, 10),
+      );
 
-            // 2. Fetch Latest Text Data
-            fetch('/api/status/')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('type-text').innerText = data.detected_type;
-                    document.getElementById('action-text').innerText = data.action_taken;
-                })
-                .catch(error => console.error('Error fetching data:', error));
-        }, 500); // 500ms = 2 frames per second (Great for ESP32)
+      // 2. What to do when the connection drops
+      client.onConnectionLost = function (responseObject) {
+        if (responseObject.errorCode !== 0) {
+          console.log("Connection Lost: " + responseObject.errorMessage);
+        }
+      };
+
+      // 3. What to do when a message arrives from the ESP32!
+      client.onMessageArrived = function (message) {
+        console.log("ESP32 Sent: " + message.payloadString);
+
+        const detectedLabel = message.payloadString;
+        const displayElement = document.getElementById("waste-status");
+
+        // Update the UI based on the text
+        if (detectedLabel === "BIO") {
+          displayElement.innerText = "🍏 BIO WASTE DETECTED";
+          displayElement.style.color = "green";
+          document.body.style.backgroundColor = "#e8f5e9"; // Soft green background
+        } else if (detectedLabel === "NON-BIO" || detectedLabel === "N-BIO") {
+          displayElement.innerText = "🥤 NON-BIO WASTE DETECTED";
+          displayElement.style.color = "blue";
+          document.body.style.backgroundColor = "#e3f2fd"; // Soft blue background
+        }
+      };
+
+      // 4. Connect and Subscribe to your topic
+      client.connect({
+        useSSL: true, // Required for port 8084
+        onSuccess: function () {
+          console.log("Connected to MQTT Cloud!");
+          client.subscribe("waste-management-system/command");
+        },
+      });
     </script>
-
-</body>
+  </body>
 </html>
