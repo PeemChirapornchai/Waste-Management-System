@@ -126,13 +126,18 @@ The Waste Management System is an AIoT-based solution designed to optimize waste
 ## Software Components
 
 - **Edge Impulse Inferencing Module**:
-- Captures camera frames and runs Edge Impulse inference to detect waste, then maps model output labels to BIO and N-BIO commands.
+  - Captures camera frames and runs Edge Impulse inference to detect waste, then maps model output labels to BIO and N-BIO commands. ([ESP32-Cam-Edge-Impulse](https://github.com/luisomoreau/ESP32-Cam-Edge-Impulse))
 
-[ESP32-Cam-Edge-Impulse](https://github.com/luisomoreau/ESP32-Cam-Edge-Impulse)
-
-- **Wi-Fi + MQTT + HTTP Communication Layer**: Uses Wi-Fi and PubSubClient MQTT to publish commands from the camera MCU and subscribe/receive commands on the servo MCU, while using HTTP to upload captured images/metadata to the server.
-- **Servo Control Logic**: Implements a state machine to control servo movements based on received commands, ensuring safe operation and preventing command conflicts.
-- **Dashboard Interface**: A web-based dashboard to visualize incoming classification commands and system status in near real time for monitoring and demonstration purposes.
+- **Wi-Fi + MQTT + HTTP Communication Layer**:
+  - Uses Wi-Fi and PubSubClient MQTT to publish commands from the camera MCU and subscribe/receive commands on the servo MCU, while using HTTP to upload captured images/metadata to the server.
+- **FreeRTOS Task Scheduler**:
+  - The servo MCU runs three concurrent RTOS tasks — `mqttTask` (MQTT keep-alive), `servoTask` (command execution and servo movement), and `guardTask` (fast state guard that drops buffered commands when the servo is not READY) — to safely handle concurrent message reception and physical actuation.
+- **Servo Control Logic**:
+  - Implements a state machine (READY / BUSY) to control servo movements based on received commands, ensuring safe operation and preventing command conflicts.
+- **Django Backend Server**:
+  - A Python Django web server that exposes an HTTP `/upload` endpoint to receive images and metadata from the camera MCU, stores records in a SQLite database, and serves the dashboard page.
+- **Dashboard Interface**:
+  - A web-based dashboard to visualize incoming classification commands and system status in near real time for monitoring and demonstration purposes.
 
 ## Project Structure
 
