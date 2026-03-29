@@ -8,13 +8,15 @@
 
 #define CONFIDENCE_THRESHOLD 0.5
 HTTPClient http;
+unsigned long lastSendTime = 0;
+const unsigned long sendInterval = 5000;
 
 void sendImageHTTP(camera_fb_t * fb, const char* label, uint32_t x, uint32_t y, uint32_t w, uint32_t h) {
     
     
     // create URL with query parameters
     char url[150];
-    snprintf(url, sizeof(url), "http://192.168.1.101:8000/upload?label=%s&x=%u&y=%u&w=%u&h=%u", 
+    snprintf(url, sizeof(url), "http://192.168.1.104:8000/upload?label=%s&x=%u&y=%u&w=%u&h=%u", 
          label, x, y, w, h);
     
     // Serial.print("Sending to: ");
@@ -41,12 +43,13 @@ void setup()
     Serial.println("\n--- SYSTEM STARTING ---");
 
     Serial.println("Connecting to WiFi and MQTT...");
-    WIFI_OP_init();        // WiFi init
-    WIFI_OP_MQTT_init();   // MQTT init
-    PSRAM_init();          // PSRAM init
-    hw_camera_init();      // Camera init
+    WIFI_OP_init();      // WiFi init
+    WIFI_OP_MQTT_init(); // MQTT init
+    PSRAM_init();        // PSRAM init
+    hw_camera_init();    // Camera init
     Serial.println("System Ready!");
 }
+
 
 void loop()
 {
@@ -58,37 +61,30 @@ void loop()
 
     AI_run(&label, &prob, &x, &y, &w, &h, &is_detected);
 
-    if (is_detected)
-    {
-        Serial.printf("Detected: %s with confidence %.2f\n", label, prob);
-        Serial.printf("Location: x:%u, y:%u, w:%u, h:%u\n", x, y, w, h);
+    // two condition: is_detect + waiting time
+    if (is_detected && (millis() - lastSendTime > sendInterval))
+    { 
+        // save a send time
+        lastSendTime = millis();
 
-        if (strcmp(label, "B") == 0) // FIXME: Change the label "BIO" "NON-BIO" according to label output
-        {
+        Serial.printf("Detected: %s with confidence %.2f\n", label, prob);
+
+        // 
+        if (strcmp(label, "B") == 0) {
             WIFI_OP_MQTT_Send((const uint8_t *)MQTT_CMD::BIO, MQTT_COMMAND_TOPIC);
         }
-        else if (strcmp(label, "N") == 0)
-        {
+        else if (strcmp(label, "N") == 0) {
             WIFI_OP_MQTT_Send((const uint8_t *)MQTT_CMD::NON_BIO, MQTT_COMMAND_TOPIC);
         }
 
-        if (is_detected) {
-    
-            Serial.printf("HEAP:  xxxxxxxx: %d / Total: %d bytes\n", ESP.getFreeHeap(), ESP.getHeapSize());
-            camera_fb_t * fb = esp_camera_fb_get();
-            if (fb) {
-                sendImageHTTP(fb, label, x, y, w, h); // send image 
-                esp_camera_fb_return(fb);
-            }
+        // send image 
+        camera_fb_t * fb = esp_camera_fb_get();
+        if (fb) {
+            sendImageHTTP(fb, label, x, y, w, h); 
+            esp_camera_fb_return(fb); // return memory
         }
-        
 
-        Serial.printf("HEAP:  Free: %d / Total: %d bytes\n", ESP.getFreeHeap(), ESP.getHeapSize());
-        Serial.printf("PSRAM: Free: %d / Total: %d bytes\n", ESP.getFreePsram(), ESP.getPsramSize());
-        
-        is_detected = false; // Reset for next loop
-        // print_memory();
+        Serial.println("Command sent, entering 5s cooldown...");
         Serial.println("--------------------------------------------");
-        delay(2000);
     }
 }
