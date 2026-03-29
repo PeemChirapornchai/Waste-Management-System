@@ -1,5 +1,25 @@
 # Waste-Management-System
 
+## Table of Contents
+
+<details>
+<summary>Table of Contents</summary>
+
+1. [Project Overview](#project-overview)
+2. [Objectives](#objectives)
+3. [Team Members](#team-members)
+4. [Stakeholders](#stakeholders)
+5. [User Stories](#user-stories)
+6. [Hardware Components](#hardware-components)
+7. [Software Components](#software-components)
+8. [Image detection and classification](#image-detection-and-classification)
+9. [How it Works](#how-it-works)
+10. [Dashboard and Monitoring](#dashboard-and-monitoring)
+11. [For Future Work](#for-future-work)
+12. [Conclusion](#conclusion)
+
+</details>
+
 ## Project Overview
 
 The Waste Management System is an AIoT-based solution designed to optimize waste segregation and management. The system utilizes a combination of hardware components, including microcontrollers and actuators, to automate the process of sorting biodegradable and non-biodegradable waste. The project aims to enhance efficiency in waste management while promoting environmental sustainability.
@@ -28,17 +48,21 @@ The Waste Management System is an AIoT-based solution designed to optimize waste
 
 ## Stakeholders
 
-1. **Local Municipalities**: Need practical smart-waste solutions to improve sanitation, reduce manual sorting effort, and support cleaner communities.
+1. **Residents (End Users)**: Need quick and accurate waste disposal with minimal manual effort.
 
-2. **Environmental Organizations**: Promote sustainable disposal practices and are interested in technology that increases correct waste separation.
+2. **Municipality Operators**: Need consistent sorting quality to reduce re-sorting work and improve collection efficiency.
+
+3. **Environmental Organizations**: Need reliable waste-separation data to support campaigns and policy recommendations.
 
 ## User Stories
 
-1. Residents want the system to automatically sort waste correctly so they can dispose of waste quickly and responsibly.
+1. As a resident, I want the system to sort waste automatically, so that disposal is easy and correct.
 
-2. Municipality operators want an automated sorting process so they can improve collection efficiency and reduce operational cost.
+2. As a municipality operator, I want reliable BIO/N-BIO sorting, so that manual correction effort and operating cost are reduced.
 
-3. Environmental organizations want access to waste-sorting trends so they can support campaigns and policies that reduce pollution.
+3. As an environmental analyst, I want to monitor classification trends, so that I can support waste management decisions with data.
+
+4. As an environmental analyst, I want a dashboard view of classification activity, so that I can monitor waste-sorting trends over time.
 
 ## Hardware Components
 
@@ -59,7 +83,7 @@ The Waste Management System is an AIoT-based solution designed to optimize waste
 ![alt text](images/LilyGo-T-SIMCAM-ESP32-S3.png)
 
 - **Role**: Inferencing and sending data to Cucumber RS (via MQTT publish to broker)
-- **Communication**: Wi-Fi + MQTT publish to command topic
+- **Communication**: Wi-Fi + MQTT publish to command topic + HTTP image upload to server
 - **MQTT Broker**: broker.emqx.io:1883
 - **MQTT Client ID**: esp32s3box_camera
 - **Topic**: waste-management-system/command
@@ -73,6 +97,14 @@ The Waste Management System is an AIoT-based solution designed to optimize waste
 - **MQTT Client ID**: esp32s2_servo
 - **Topic**: waste-management-system/command
 
+#### _Servo Motor_
+
+![alt text](images/Servo-Motor.png)
+
+- **Role**: Actuator for controlling the separation of type of waste for Biodegradable and Non-Biodegradable waste
+
+---
+
 ### Additional Requirements
 
 - **Power supply:**
@@ -84,7 +116,7 @@ The Waste Management System is an AIoT-based solution designed to optimize waste
 ## Software Components
 
 - **Edge Impulse Inferencing Module**: Captures camera frames and runs Edge Impulse inference to detect waste, then maps model output labels to BIO and N-BIO commands.
-- **Wi-Fi + MQTT Communication Layer**: Uses Wi-Fi and PubSubClient MQTT to publish commands from the camera MCU and subscribe/receive commands on the servo MCU.
+- **Wi-Fi + MQTT + HTTP Communication Layer**: Uses Wi-Fi and PubSubClient MQTT to publish commands from the camera MCU and subscribe/receive commands on the servo MCU, while using HTTP to upload captured images/metadata to the server.
 - **Servo Control Module**: Executes actuator movement for BIO and N-BIO sorting, then returns servos to home position after disposal.
 - **State-Based Control**: Uses a servo state machine to ensure commands are processed safely and in order.
 - **Monitoring Interface**: A dashboard/UI for monitoring classification history, timestamps, and bin-related status.
@@ -145,6 +177,18 @@ Location: x:24, y:16, w:8, h:8
    - After a short delay for disposal, the servo returns to home position and state returns to READY for the waste separation.
 
 ## Dashboard and Monitoring
+
+![alt text](images/Dashboard_example.jpg)
+
+The dashboard provides a lightweight real-time view of system activity for demonstration and validation.
+It focuses on operational visibility rather than control logic.
+
+_Summary:_
+
+1. Shows incoming waste classification commands (BIO / N-BIO) from MQTT in near real time.
+2. Displays recent activity to help confirm that camera inference and command publishing are working.
+3. Helps operators quickly check if the communication pipeline is active during testing.
+4. Supports basic monitoring of behavior trends such as repeated class output over short periods.
 
 ## For Future Work
 
