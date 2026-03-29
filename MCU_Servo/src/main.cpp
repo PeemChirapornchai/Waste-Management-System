@@ -23,7 +23,8 @@ void loop()
 {
     WIFI_OP_MQTT_connection();
 
-    if (u8_Message_flag != 1){
+    if (u8_Message_flag != 1)
+    {
         return;
     }
 
@@ -41,27 +42,18 @@ void loop()
     if (strcmp((char *)u8_recv_buff, MQTT_CMD::BIO) == 0)
     {
         servo_turn(SERVO_BIO);
-        servo_state.step(SERVO_MOVE); // After moving servo, step to SERVO_MOVE
+        servo_state.step(SERVO_MOVE);
     }
     else if (strcmp((char *)u8_recv_buff, MQTT_CMD::NON_BIO) == 0)
     {
         servo_turn(SERVO_NON_BIO);
-        servo_state.step(SERVO_MOVE); // After moving servo, step to SERVO_MOVE
+        servo_state.step(SERVO_MOVE);
     }
 
-    /*
-    int ang1 = servo_get_current_angle(1);
-    int ang2 = servo_get_current_angle(2);
-
-        uint8_t tx_buffer[PAYLOAD_MAX] = {0};
-        snprintf((char *)tx_buffer, PAYLOAD_MAX, "%3d,%3d", ang1, ang2);
-        WIFI_OP_MQTT_Send(tx_buffer, MQTT_DATA_TOPIC);
-    */
     delay(2000); // Simulate time taken for servo to move and stabilize
     servo_return_to_home();
-    servo_state.step(SERVO_RETURN_HOME); // After returning home, step to SERVO_RETURN_HOME
-    delay(500);
-    servo_state.step(SERVO_READY); // After checking position, step to SERVO_READY
+    servo_state.step(SERVO_RETURN_HOME);
+    servo_state.step(SERVO_READY);
 
     u8_Message_flag = 0;
     memset(u8_recv_buff, 0, PAYLOAD_MAX); // Clear Flag and Buffer
