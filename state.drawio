@@ -1,67 +1,85 @@
 <mxfile host="65bd71144e">
     <diagram id="XeEI_ijcyF0x-LkVzgxw" name="Page-1">
-        <mxGraphModel dx="657" dy="1277" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="317" dy="962" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="#ffffff" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
-                <mxCell id="21" value="" style="edgeStyle=none;html=1;" edge="1" parent="1" source="2" target="4">
+                <mxCell id="30" value="" style="rounded=1;whiteSpace=wrap;html=1;glass=0;strokeColor=none;" vertex="1" parent="1">
+                    <mxGeometry x="113" y="21" width="553" height="648" as="geometry"/>
+                </mxCell>
+                <mxCell id="21" value="" style="edgeStyle=none;html=1;" parent="1" source="2" target="4" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="2" value="Initialize Camera" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="130" y="60" width="120" height="60" as="geometry"/>
+                <mxCell id="2" value="Initialize Camera" style="whiteSpace=wrap;html=1;rounded=1;shadow=1;glass=0;" parent="1" vertex="1">
+                    <mxGeometry x="225" y="105" width="120" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="22" value="" style="edgeStyle=none;html=1;" edge="1" parent="1" source="3" target="6">
+                <mxCell id="22" value="" style="edgeStyle=none;html=1;" parent="1" source="3" target="6" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="3" value="Initialize Servo" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="320" y="60" width="120" height="60" as="geometry"/>
+                <mxCell id="3" value="Initialize Servo" style="whiteSpace=wrap;html=1;rounded=1;shadow=1;glass=0;" parent="1" vertex="1">
+                    <mxGeometry x="415" y="105" width="120" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="20" value="" style="edgeStyle=none;html=1;" edge="1" parent="1" source="4" target="7">
+                <mxCell id="20" value="" style="edgeStyle=none;html=1;" parent="1" source="4" target="7" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="4" value="Initialize Wifi &amp;amp; Mqtt" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="130" y="170" width="120" height="60" as="geometry"/>
+                <mxCell id="4" value="Initialize Wifi &amp;amp; Mqtt" style="whiteSpace=wrap;html=1;rounded=1;shadow=1;glass=0;" parent="1" vertex="1">
+                    <mxGeometry x="225" y="215" width="120" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="6" value="Initialize Wifi &amp;amp; Mqtt" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="320" y="170" width="120" height="60" as="geometry"/>
-                </mxCell>
-                <mxCell id="7" value="Image Process" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="130" y="280" width="120" height="60" as="geometry"/>
-                </mxCell>
-                <mxCell id="19" style="edgeStyle=entityRelationEdgeStyle;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="9" target="10">
+                <mxCell id="24" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="6" target="10">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="9" value="Send command Mqtt" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="120" y="400" width="140" height="60" as="geometry"/>
+                <mxCell id="6" value="Initialize Wifi &amp;amp; Mqtt" style="whiteSpace=wrap;html=1;rounded=1;shadow=1;glass=0;" parent="1" vertex="1">
+                    <mxGeometry x="415" y="215" width="120" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="18" value="" style="edgeStyle=none;html=1;" edge="1" parent="1" source="10" target="12">
+                <mxCell id="23" value="" style="edgeStyle=none;html=1;" edge="1" parent="1" source="7" target="9">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="10" value="Recieve command" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="320" y="510" width="120" height="60" as="geometry"/>
+                <mxCell id="7" value="Image Processing" style="whiteSpace=wrap;html=1;rounded=1;shadow=1;glass=0;" parent="1" vertex="1">
+                    <mxGeometry x="217.5" y="323" width="135" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="17" value="" style="edgeStyle=none;html=1;" edge="1" parent="1" source="12" target="13">
-                    <mxGeometry relative="1" as="geometry"/>
-                </mxCell>
-                <mxCell id="12" value="Move Servo" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="320" y="610" width="120" height="60" as="geometry"/>
-                </mxCell>
-                <mxCell id="16" value="" style="edgeStyle=none;html=1;" edge="1" parent="1" source="13" target="14">
-                    <mxGeometry relative="1" as="geometry"/>
-                </mxCell>
-                <mxCell id="13" value="Return Home" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="320" y="720" width="120" height="60" as="geometry"/>
-                </mxCell>
-                <mxCell id="15" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;curved=1;" edge="1" parent="1" source="14" target="7">
+                <mxCell id="26" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;curved=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="9" target="7">
                     <mxGeometry relative="1" as="geometry">
                         <Array as="points">
-                            <mxPoint x="50" y="850"/>
-                            <mxPoint x="50" y="310"/>
+                            <mxPoint x="155" y="475"/>
+                            <mxPoint x="155" y="355"/>
+                            <mxPoint x="218" y="355"/>
                         </Array>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="14" value="Send command Mqtt" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="310" y="820" width="140" height="60" as="geometry"/>
+                <mxCell id="9" value="Send command Mqtt" style="whiteSpace=wrap;html=1;rounded=1;shadow=1;glass=0;" parent="1" vertex="1">
+                    <mxGeometry x="215" y="445" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="18" value="" style="edgeStyle=none;html=1;" parent="1" source="10" target="12" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="Recieve command" style="whiteSpace=wrap;html=1;rounded=1;shadow=1;glass=0;" parent="1" vertex="1">
+                    <mxGeometry x="415" y="325" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" value="" style="edgeStyle=none;html=1;" parent="1" source="12" target="13" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="Move Servo" style="whiteSpace=wrap;html=1;rounded=1;shadow=1;glass=0;" parent="1" vertex="1">
+                    <mxGeometry x="415" y="445" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="29" style="edgeStyle=entityRelationEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="13" target="10">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="655" y="455"/>
+                            <mxPoint x="665" y="465"/>
+                            <mxPoint x="615" y="465"/>
+                            <mxPoint x="675" y="455"/>
+                            <mxPoint x="655" y="465"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="13" value="Return Home" style="whiteSpace=wrap;html=1;rounded=1;shadow=1;glass=0;" parent="1" vertex="1">
+                    <mxGeometry x="415" y="550" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="33" value="Camera MCU" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="230.5" y="65" width="109" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="34" value="Servo MCU" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="420.5" y="65" width="109" height="30" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>

@@ -6,14 +6,21 @@ The Waste Management System is an AIoT-based solution designed to optimize waste
 
 ## Objectives
 
-Text here
+1. Build an AIoT waste classification system that can detect waste type in real time using a camera-based ML model.
+
+2. Separate waste automatically into Biodegradable and Non-Biodegradable bins using servo actuators.
+
+3. Enable communication between two microcontrollers through Wi-Fi and MQTT for reliable command delivery.
+
+4. Design the system with clear state-based control so each subsystem can be monitored and extended.
+
+5. Provide a base architecture that can be expanded for more classes, more sensors, and data logging in future iterations.
 
 ## Team Members
 
 | Name                 | ID         | University Host      |
 | -------------------- | ---------- | -------------------- |
 | Worapob Wannatang    | 6814552841 | Kasetsart University |
-| B                    | 000        | University B         |
 | Purin Chirapornchai  | 6814552809 | Kasetsart University |
 | Jakapat Dungdee      | 6814552825 | Kasetsart University |
 | Kritsana Netpugdee   | 6814552795 | Kasetsart University |
@@ -21,19 +28,17 @@ Text here
 
 ## Stakeholders
 
-1. Local Municipalities: Interested in implementing efficient waste management systems to improve sanitation and reduce environmental impact.
+1. **Local Municipalities**: Need practical smart-waste solutions to improve sanitation, reduce manual sorting effort, and support cleaner communities.
 
-2. Environmental Organizations: Focused on promoting sustainable waste management practices and reducing pollution.
-
-3. Residents and Businesses: End-users of the waste management system who will benefit from improved waste segregation and disposal.
+2. **Environmental Organizations**: Promote sustainable disposal practices and are interested in technology that increases correct waste separation.
 
 ## User Stories
 
-1. As a resident, I want to easily dispose of my waste in the correct bins so that I can contribute to environmental sustainability.
+1. Residents want the system to automatically sort waste correctly so they can dispose of waste quickly and responsibly.
 
-2. As a local municipality, I want to implement an automated waste management system to improve efficiency and reduce operational costs.
+2. Municipality operators want an automated sorting process so they can improve collection efficiency and reduce operational cost.
 
-3. As an environmental organization, I want to promote the use of sustainable waste management practices to reduce pollution and protect the environment.
+3. Environmental organizations want access to waste-sorting trends so they can support campaigns and policies that reduce pollution.
 
 ## Hardware Components
 
@@ -54,46 +59,74 @@ Text here
 ![alt text](images/LilyGo-T-SIMCAM-ESP32-S3.png)
 
 - **Role**: Camera inferencing and sending data to MCU_B
-- **Communication**: To be determined
+- **Communication**: Wi-Fi + MQTT publish to command topic
+- **MQTT Broker**: broker.emqx.io:1883
+- **MQTT Client ID**: esp32s3box_camera
+- **Topic**: waste-management-system/command
 
 #### _Cucumber RS_
 
 ![alt text](images/Cucumber-RS.png)
 
 - **Role**: Receiving data from MCU_A and controlling actuators
-- **Communication**: To be determined
+- **Communication**: Wi-Fi + MQTT subscribe to command topic and execute servo movement
+- **MQTT Client ID**: esp32s2_servo
+- **Topic**: waste-management-system/command
 
 ### Additional Requirements
 
-- **Power supply:**
-- **Wires and Connectors:**
-- **Waste bins:**
+- **Power supply:** Stable 5V supply for both boards and servo motors, with sufficient current for peak servo movement.
+- **Wires and Connectors:** Jumper wires for GPIO control, common ground between MCU and servos, and USB cables for programming/debugging.
+- **Waste bins:** Two physical bins or channels for Biodegradable and Non-Biodegradable outputs.
 
 ## Software Components
 
-- **Camera Inferencing Algorithm**: Developed using machine learning techniques to classify waste into biodegradable and non-biodegradable categories.
-- **Communication Protocol**: Implemented to facilitate data exchange between the two microcontrollers (MCU_A and MCU_B).
-- **Actuator Control Logic**: Software logic to control the servo motors based on the classification results from the camera inferencing algorithm.
-- **User Interface**: Optional interface for monitoring the system status and waste levels in the bins.
-
+- **Edge Impulse Inferencing Module**: Captures camera frames and runs Edge Impulse inference to detect waste, then maps model output labels to BIO and N-BIO commands.
+- **Wi-Fi + MQTT Communication Layer**: Uses Wi-Fi and PubSubClient MQTT to publish commands from the camera MCU and subscribe/receive commands on the servo MCU.
+- **Servo Control Module**: Executes actuator movement for BIO and N-BIO sorting, then returns servos to home position after disposal.
+- **State-Based Control**: Uses a servo state machine to ensure commands are processed safely and in order.
+- **Monitoring Interface**: A dashboard/UI for monitoring classification history, timestamps, and bin-related status.
+ 
 ## State Diagram
 
-![alt text](images/State-Diagram.png)
-
-## System Architecture
-
-![alt text](images/System-Architecture.png)
+![alt text](images/state.png)
 
 ---
 
 ## How it Works
 
-1. The LilyGo T-SIMCAM ESP32-S3 captures images of the waste and processes them using the camera inferencing algorithm to classify the waste type.
+1. **System Startup**
+   - The camera MCU initializes Serial, PSRAM, and camera hardware.
+   - The servo MCU initializes Serial, servo controller, Wi-Fi, and MQTT client, then enters READY state.
 
-2. The classification results are sent to the Cucumber RS microcontroller via the communication protocol.
+2. **Waste Capture and AI Inference**
+   - The camera MCU captures an image frame and runs Edge Impulse inference to detect an object and class label.
 
-3. The Cucumber RS receives the data and controls the servo motors to separate the waste into the appropriate bins based on the classification results.
+3. **Classification Decision**
+   - If a valid object is detected, the camera MCU maps model labels to command messages:
+     - BIO for biodegradable waste
+     - N-BIO for non-biodegradable waste
+
+4. **Command Transmission**
+   - The camera MCU publishes the command over MQTT to waste-management-system/command.
+
+5. **Command Reception and Validation**
+   - The servo MCU receives the MQTT payload, checks that the servo state machine is READY, then transitions to command-processing state.
+
+6. **Servo Action**
+   - Based on received payload:
+     - BIO triggers servo movement to biodegradable position.
+     - N-BIO triggers servo movement to non-biodegradable position.
+
+7. **Return to Safe Position**
+   - After a short delay for disposal, the servo returns to home position and state returns to READY for the next item.
+
+## For Future Work
+
+- Extend the system to sort more waste types (for example: plastic, paper, glass, and metal) to support real-world waste separation better.
+
+- Analyze collected classification data to improve future waste management decisions, such as pickup planning, bin placement, and waste trend monitoring.
 
 ## Conclusion
 
-The Waste Management System project demonstrates the integration of AIoT technologies to enhance waste segregation and management. By automating the process, the system aims to improve efficiency, reduce operational costs, and promote environmental sustainability. Future work may include expanding the system to handle more waste categories and integrating additional sensors for improved accuracy.
+The Waste Management System project demonstrates the integration of AIoT technologies to enhance waste segregation and management. By automating the process, the system aims to improve efficiency, reduce operational costs, and promote environmental sustainability.
