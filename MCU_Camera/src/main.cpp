@@ -6,18 +6,17 @@
 #include "base64.h"
 #include <HTTPClient.h>
 
-
+#define CONFIDENCE_THRESHOLD 0.5
 HTTPClient http;
 unsigned long lastSendTime = 0;
 const unsigned long sendInterval = 5000;
 
-void sendImageHTTP(camera_fb_t * fb, const char* label, uint32_t x, uint32_t y, uint32_t w, uint32_t h) {
-    
+void sendImageHTTP(camera_fb_t * fb, const char* label, float prob, uint32_t x, uint32_t y, uint32_t w, uint32_t h) {
     
     // create URL with query parameters
     char url[150];
-    snprintf(url, sizeof(url), "http://192.168.1.104:8000/upload?label=%s&x=%u&y=%u&w=%u&h=%u", 
-         label, x, y, w, h);
+    snprintf(url, sizeof(url), "http://192.168.1.104:8000/upload?label=%s&conf=%.2f&x=%u&y=%u&w=%u&h=%u", 
+             label, prob, x, y, w, h);
     
     // Serial.print("Sending to: ");
     Serial.println(url); 
@@ -80,7 +79,7 @@ void loop()
         // send image 
         camera_fb_t * fb = esp_camera_fb_get();
         if (fb) {
-            sendImageHTTP(fb, label, x, y, w, h); 
+            sendImageHTTP(fb, label, prob, x, y, w, h); 
             esp_camera_fb_return(fb); // return memory
         }
 
