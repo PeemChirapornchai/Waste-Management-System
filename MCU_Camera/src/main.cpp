@@ -12,16 +12,21 @@ void setup()
     while (!Serial)
     {
         delay(10);
-    } // wait for connection
+    } // wait for serial connection
 
     Serial.println("\n--- SYSTEM STARTING ---");
-    PSRAM_init();     // PSRAM init
-    hw_camera_init(); // Camera init
+
+    Serial.println("Connecting to WiFi and MQTT...");
+    WIFI_OP_init();        // WiFi init
+    WIFI_OP_MQTT_init();   // MQTT init
+    PSRAM_init();          // PSRAM init
+    hw_camera_init();      // Camera init
     Serial.println("System Ready!");
 }
 
 void loop()
 {
+    WIFI_OP_MQTT_connection();
     const char *label;
     float prob;
     uint32_t x, y, w, h;
@@ -34,11 +39,11 @@ void loop()
         Serial.printf("Detected: %s with confidence %.2f\n", label, prob);
         Serial.printf("Location: x:%u, y:%u, w:%u, h:%u\n", x, y, w, h);
 
-        if (strcmp(label, "BIO") == 0) // FIXME: Change the label "BIO" "NON-BIO" according to label output
+        if (strcmp(label, "B") == 0) // FIXME: Change the label "BIO" "NON-BIO" according to label output
         {
             WIFI_OP_MQTT_Send((const uint8_t *)MQTT_CMD::BIO, MQTT_COMMAND_TOPIC);
         }
-        else if (strcmp(label, "NON-BIO") == 0)
+        else if (strcmp(label, "N") == 0)
         {
             WIFI_OP_MQTT_Send((const uint8_t *)MQTT_CMD::NON_BIO, MQTT_COMMAND_TOPIC);
         }
