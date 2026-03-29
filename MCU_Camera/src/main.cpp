@@ -6,7 +6,7 @@
 #include "base64.h"
 #include <HTTPClient.h>
 
-#define CONFIDENCE_THRESHOLD 0.5
+
 HTTPClient http;
 unsigned long lastSendTime = 0;
 const unsigned long sendInterval = 5000;
