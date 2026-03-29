@@ -3,122 +3,634 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Waste Management AI Dashboard</title>
+    <title>Waste Management — Live MQTT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,500&display=swap"
+      rel="stylesheet"
+    />
     <style>
-      body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #1e1e2f;
-        color: white;
-        text-align: center;
-        margin: 0;
-        padding: 20px;
+      :root {
+        --bg: #0f1117;
+        --card: #1a1f2e;
+        --muted: #8b95a8;
+        --accent: #3ee8b5;
+        --bio-a: #1b4332;
+        --bio-b: #2d6a4f;
+        --nb-a: #1e3a5f;
+        --nb-b: #3d5a80;
       }
-      .container {
-        max-width: 800px;
-        margin: auto;
-        background: #2a2a40;
-        padding: 20px;
-        border-radius: 15px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "DM Sans", system-ui, sans-serif;
+        background: radial-gradient(
+          ellipse 120% 80% at 50% -20%,
+          #1c2540 0%,
+          var(--bg) 55%
+        );
+        color: #e8ecf4;
+      }
+      .wrap {
+        max-width: 920px;
+        margin: 0 auto;
+        padding: 2rem 1.25rem 3rem;
+      }
+      header {
+        text-align: center;
+        margin-bottom: 2rem;
       }
       h1 {
-        color: #00e5ff;
+        font-size: clamp(1.5rem, 4vw, 2rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin: 0 0 0.5rem;
       }
-      .feed-container {
-        margin: 20px 0;
-        background: #000;
-        padding: 10px;
-        border-radius: 10px;
-        min-height: 400px;
+      .sub {
+        color: var(--muted);
+        font-size: 0.95rem;
+        margin: 0;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        padding: 0.35rem 0.85rem;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #666;
+        transition:
+          background 0.3s,
+          box-shadow 0.3s;
+      }
+      .dot.ok {
+        background: var(--accent);
+        box-shadow: 0 0 12px rgba(62, 232, 181, 0.6);
+      }
+      .dot.err {
+        background: #ff6b6b;
+        box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+      }
+      .topic {
+        font-family: ui-monospace, monospace;
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-top: 0.35rem;
+      }
+      .stage {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+      @media (max-width: 640px) {
+        .stage {
+          grid-template-columns: 1fr;
+        }
+      }
+      .panel {
+        position: relative;
+        border-radius: 20px;
+        padding: 1.5rem;
+        min-height: 280px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        transition:
+          transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+          opacity 0.35s,
+          box-shadow 0.35s,
+          filter 0.35s;
+        opacity: 0.35;
+        filter: grayscale(0.6);
+      }
+      .panel.active {
+        opacity: 1;
+        filter: none;
+        transform: scale(1.02);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+      }
+      .panel.bio {
+        background: linear-gradient(145deg, var(--bio-a), var(--bio-b));
+      }
+      .panel.nonbio {
+        background: linear-gradient(145deg, var(--nb-a), var(--nb-b));
+      }
+      .panel h2 {
+        margin: 0 0 0.25rem;
+        font-size: 1.15rem;
+        font-weight: 700;
+      }
+      .panel p.tag {
+        margin: 0;
+        font-size: 0.85rem;
+        opacity: 0.85;
+      }
+      .illus {
+        margin-top: 1.25rem;
+        height: 140px;
         display: flex;
         align-items: center;
         justify-content: center;
       }
-      img {
-        max-width: 100%;
-        border-radius: 5px;
+      .illus svg {
+        width: 100%;
+        max-width: 200px;
+        height: auto;
+        filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.25));
       }
-      .stats {
+      .hero-msg {
+        text-align: center;
+        margin-top: 2rem;
+        padding: 1.25rem;
+        border-radius: 16px;
+        background: var(--card);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .hero-msg strong {
+        display: block;
+        font-size: clamp(1.1rem, 3vw, 1.35rem);
+        color: #fff;
+      }
+      .hero-msg span {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+      .time {
+        margin-top: 0.75rem;
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+      .meta {
+        margin-top: 0.6rem;
+        color: var(--muted);
+        font-size: 0.8rem;
+        line-height: 1.5;
+      }
+      .config {
+        margin: 1.25rem auto 0;
+        text-align: left;
+        max-width: 760px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        padding: 0.9rem;
+      }
+      .config-grid {
+        display: grid;
+        gap: 0.55rem;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+      }
+      @media (max-width: 920px) {
+        .config-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+      .field {
         display: flex;
-        justify-content: space-around;
-        margin-top: 20px;
+        flex-direction: column;
+        gap: 0.3rem;
       }
-      .stat-box {
-        background: #3b3b58;
-        padding: 15px 30px;
+      .field label {
+        font-size: 0.72rem;
+        color: var(--muted);
+      }
+      .field input {
+        width: 100%;
+        border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 10px;
-        width: 40%;
+        background: rgba(0, 0, 0, 0.22);
+        color: #fff;
+        height: 36px;
+        padding: 0 0.6rem;
+        font-size: 0.85rem;
       }
-      .stat-box h3 {
-        margin: 0 0 10px 0;
-        color: #a5a5cd;
-        font-size: 14px;
-        text-transform: uppercase;
+      .cfg-actions {
+        margin-top: 0.7rem;
+        display: flex;
+        gap: 0.55rem;
+        flex-wrap: wrap;
       }
-      .stat-box p {
-        margin: 0;
-        font-size: 24px;
-        font-weight: bold;
-        color: #00e5ff;
+      .cfg-actions button {
+        border: 0;
+        border-radius: 999px;
+        height: 34px;
+        padding: 0 0.95rem;
+        font-size: 0.8rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .cfg-actions .primary {
+        background: #3ee8b5;
+        color: #082016;
+      }
+      .cfg-actions .ghost {
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+      }
+      .panel.active .illus {
+        animation: bob 0.8s ease-in-out;
+      }
+      @keyframes bob {
+        0% {
+          transform: translateY(8px) scale(0.96);
+          opacity: 0.55;
+        }
+        100% {
+          transform: translateY(0) scale(1);
+          opacity: 1;
+        }
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <h1>♻️ AI Waste Sorting Dashboard</h1>
+    <div class="wrap">
+      <header>
+        <h1>Waste stream — live from ESP32</h1>
+        <p class="sub">
+          Browser subscribes over WebSockets while ESP32 Camera/Servo keep using
+          TCP MQTT.
+        </p>
+        <div class="pill" id="conn-pill">
+          <span class="dot" id="conn-dot"></span>
+          <span id="conn-text">Connecting…</span>
+        </div>
+        <p class="topic" id="topic-line"></p>
+        <p class="meta" id="ports-line"></p>
 
-      <div style="text-align: center; margin-top: 50px">
-        <h1>Waste Sorting System</h1>
-        <h2 id="waste-status" style="font-size: 3rem; transition: 0.3s">
-          Waiting for Camera...
-        </h2>
+        <section class="config" aria-label="MQTT WebSocket Settings">
+          <div class="config-grid">
+            <div class="field">
+              <label for="host">Broker Host</label>
+              <input id="host" type="text" />
+            </div>
+            <div class="field">
+              <label for="ws-port">WS Port</label>
+              <input id="ws-port" type="number" min="1" max="65535" />
+            </div>
+            <div class="field">
+              <label for="ws-path">WS Path</label>
+              <input id="ws-path" type="text" />
+            </div>
+            <div class="field">
+              <label for="cmd-topic">Command Topic</label>
+              <input id="cmd-topic" type="text" />
+            </div>
+            <div class="field">
+              <label for="data-topic">Data Topic</label>
+              <input id="data-topic" type="text" />
+            </div>
+          </div>
+          <div class="cfg-actions">
+            <button id="btn-connect" class="primary" type="button">
+              Connect
+            </button>
+            <button id="btn-reconnect" class="ghost" type="button">
+              Reconnect
+            </button>
+            <button id="btn-disconnect" class="ghost" type="button">
+              Disconnect
+            </button>
+          </div>
+        </section>
+      </header>
+
+      <div class="stage">
+        <article class="panel bio" id="panel-bio" aria-label="Biodegradable">
+          <h2>Bio waste</h2>
+          <p class="tag">Compostable &amp; organic</p>
+          <div class="illus" aria-hidden="true">
+            <svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg">
+              <ellipse
+                cx="100"
+                cy="130"
+                rx="70"
+                ry="12"
+                fill="rgba(0,0,0,.2)"
+              />
+              <path
+                d="M100 28c-22 0-40 18-44 42-8 4-14 14-14 26 0 16 13 29 29 29h58c16 0 29-13 29-29 0-12-6-22-14-26-4-24-22-42-44-42z"
+                fill="#95d5b2"
+              />
+              <path
+                d="M100 36c-12 22-8 48 0 68 8-20 12-46 0-68z"
+                fill="rgba(45,106,79,.35)"
+              />
+              <ellipse cx="100" cy="38" rx="18" ry="10" fill="#52b788" />
+              <path
+                d="M82 52 Q100 62 118 52"
+                stroke="#1b4332"
+                stroke-width="3"
+                fill="none"
+                stroke-linecap="round"
+              />
+              <circle cx="88" cy="78" r="6" fill="#40916c" />
+              <circle cx="112" cy="82" r="5" fill="#52b788" />
+              <path
+                d="M95 95 Q100 108 105 95"
+                stroke="#1b4332"
+                stroke-width="2.5"
+                fill="none"
+              />
+            </svg>
+          </div>
+        </article>
+
+        <article
+          class="panel nonbio"
+          id="panel-nonbio"
+          aria-label="Non-biodegradable"
+        >
+          <h2>Non-bio waste</h2>
+          <p class="tag">Recyclables &amp; residuals</p>
+          <div class="illus" aria-hidden="true">
+            <svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg">
+              <ellipse
+                cx="100"
+                cy="130"
+                rx="70"
+                ry="12"
+                fill="rgba(0,0,0,.2)"
+              />
+              <rect
+                x="58"
+                y="48"
+                width="84"
+                height="72"
+                rx="14"
+                fill="#98c1d9"
+                stroke="#3d5a80"
+                stroke-width="3"
+              />
+              <rect
+                x="72"
+                y="62"
+                width="56"
+                height="44"
+                rx="6"
+                fill="#e0fbfc"
+                opacity="0.9"
+              />
+              <path
+                d="M100 52v-18"
+                stroke="#3d5a80"
+                stroke-width="4"
+                stroke-linecap="round"
+              />
+              <ellipse cx="100" cy="30" rx="22" ry="8" fill="#ee6c4d" />
+              <rect
+                x="76"
+                y="108"
+                width="48"
+                height="8"
+                rx="2"
+                fill="#293241"
+              />
+              <circle cx="88" cy="78" r="4" fill="#3d5a80" />
+              <circle cx="112" cy="84" r="4" fill="#3d5a80" />
+            </svg>
+          </div>
+        </article>
+      </div>
+
+      <div class="hero-msg" id="hero">
+        <strong id="hero-title">Listening on MQTT…</strong>
+        <span id="hero-detail"
+          >Waiting for the camera ESP32 to publish a command.</span
+        >
+        <div class="time" id="last-time"></div>
       </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
-
     <script>
-      // 1. Connect to the public EMQX broker using WebSockets
-      const client = new Paho.MQTT.Client(
-        "broker.emqx.io",
-        8084,
-        "clientId_" + parseInt(Math.random() * 100, 10),
-      );
-
-      // 2. What to do when the connection drops
-      client.onConnectionLost = function (responseObject) {
-        if (responseObject.errorCode !== 0) {
-          console.log("Connection Lost: " + responseObject.errorMessage);
-        }
+      const serverCFG = {
+        host: "{{ mqtt_host|escapejs }}",
+        tcpPort: {{ mqtt_tcp_port }},
+        cameraTcpPort: {{ mqtt_camera_tcp_port }},
+        servoTcpPort: {{ mqtt_servo_tcp_port }},
+        port: {{ mqtt_ws_port }},
+        path: "{{ mqtt_ws_path|escapejs }}",
+        useSSL: {{ mqtt_ws_use_ssl|yesno:"true,false" }},
+        commandTopic: "{{ mqtt_command_topic|escapejs }}",
+        dataTopic: "{{ mqtt_data_topic|escapejs }}",
       };
 
-      // 3. What to do when a message arrives from the ESP32!
-      client.onMessageArrived = function (message) {
-        console.log("ESP32 Sent: " + message.payloadString);
+      const inputHost = document.getElementById("host");
+      const inputWsPort = document.getElementById("ws-port");
+      const inputWsPath = document.getElementById("ws-path");
+      const inputCommandTopic = document.getElementById("cmd-topic");
+      const inputDataTopic = document.getElementById("data-topic");
+      const btnConnect = document.getElementById("btn-connect");
+      const btnReconnect = document.getElementById("btn-reconnect");
+      const btnDisconnect = document.getElementById("btn-disconnect");
+      const portsLine = document.getElementById("ports-line");
 
-        const detectedLabel = message.payloadString;
-        const displayElement = document.getElementById("waste-status");
+      const panelBio = document.getElementById("panel-bio");
+      const panelNon = document.getElementById("panel-nonbio");
+      const connDot = document.getElementById("conn-dot");
+      const connText = document.getElementById("conn-text");
+      const topicLine = document.getElementById("topic-line");
+      const heroTitle = document.getElementById("hero-title");
+      const heroDetail = document.getElementById("hero-detail");
+      const lastTime = document.getElementById("last-time");
 
-        // Update the UI based on the text
-        if (detectedLabel === "BIO") {
-          displayElement.innerText = "🍏 BIO WASTE DETECTED";
-          displayElement.style.color = "green";
-          document.body.style.backgroundColor = "#e8f5e9"; // Soft green background
-        } else if (detectedLabel === "NON-BIO" || detectedLabel === "N-BIO") {
-          displayElement.innerText = "🥤 NON-BIO WASTE DETECTED";
-          displayElement.style.color = "blue";
-          document.body.style.backgroundColor = "#e3f2fd"; // Soft blue background
+      const STORAGE_KEY = "waste-dashboard-mqtt-ws";
+      let client = null;
+
+      function loadClientCFG() {
+        let saved = {};
+        try {
+          saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+        } catch (_) {
+          saved = {};
         }
-      };
+        return {
+          host: saved.host || serverCFG.host,
+          port: Number(saved.port || serverCFG.port),
+          path: saved.path || serverCFG.path,
+          useSSL: typeof saved.useSSL === "boolean" ? saved.useSSL : serverCFG.useSSL,
+          commandTopic: saved.commandTopic || serverCFG.commandTopic,
+          dataTopic: saved.dataTopic || serverCFG.dataTopic,
+        };
+      }
 
-      // 4. Connect and Subscribe to your topic
-      client.connect({
-        useSSL: true, // Required for port 8084
-        onSuccess: function () {
-          console.log("Connected to MQTT Cloud!");
-          client.subscribe("waste-management-system/command");
-        },
+      function fillForm(cfg) {
+        inputHost.value = cfg.host;
+        inputWsPort.value = cfg.port;
+        inputWsPath.value = cfg.path;
+        inputCommandTopic.value = cfg.commandTopic;
+        inputDataTopic.value = cfg.dataTopic;
+      }
+
+      function readForm() {
+        return {
+          host: inputHost.value.trim(),
+          port: Number(inputWsPort.value || 0),
+          path: inputWsPath.value.trim() || "/mqtt",
+          useSSL: serverCFG.useSSL,
+          commandTopic: inputCommandTopic.value.trim(),
+          dataTopic: inputDataTopic.value.trim(),
+        };
+      }
+
+      function saveCFG(cfg) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
+      }
+
+      function drawConnectionInfo(cfg) {
+        topicLine.textContent =
+          "Subscribed: " + cfg.commandTopic + " + " + cfg.dataTopic +
+          " | WebSocket: " + cfg.host + ":" + cfg.port + cfg.path;
+      }
+
+      portsLine.textContent =
+        "ESP32 Camera TCP: " + serverCFG.host + ":" + serverCFG.cameraTcpPort +
+        " | ESP32 Servo TCP: " + serverCFG.host + ":" + serverCFG.servoTcpPort +
+        " | Browser WS: " + serverCFG.host + ":" + serverCFG.port + serverCFG.path;
+
+      function setConn(ok, msg) {
+        connDot.classList.remove("ok", "err");
+        connDot.classList.add(ok ? "ok" : "err");
+        connText.textContent = msg;
+      }
+
+      function normalizePayload(raw) {
+        const s = String(raw || "").trim();
+        const upper = s.toUpperCase();
+
+        if (upper === "BIO" || upper === "B" || upper === "BIODEGRADABLE") return "BIO";
+        if (
+          upper === "N-BIO" ||
+          upper === "NON-BIO" ||
+          upper === "NON_BIO" ||
+          upper === "NB" ||
+          upper === "NONBIO" ||
+          upper === "NONBIODEGRADABLE"
+        ) {
+          return "N-BIO";
+        }
+
+        try {
+          const obj = JSON.parse(s);
+          const token =
+            obj.label || obj.class || obj.type || obj.category || obj.prediction || obj.cmd || "";
+          return normalizePayload(token);
+        } catch (_) {
+          return s;
+        }
+      }
+
+      function showIdle() {
+        panelBio.classList.remove("active");
+        panelNon.classList.remove("active");
+      }
+
+      function onKind(kind) {
+        const t = new Date();
+        const ts = t.toLocaleTimeString();
+        lastTime.textContent = "Last message · " + ts;
+
+        showIdle();
+        if (kind === "BIO") {
+          panelBio.classList.add("active");
+          heroTitle.textContent = "Bio waste";
+          heroDetail.textContent = "Detected as b / BIO. Servo route goes to biodegradable side.";
+        } else if (kind === "N-BIO") {
+          panelNon.classList.add("active");
+          heroTitle.textContent = "Non-bio waste";
+          heroDetail.textContent = "Detected as non-b / N-BIO. Servo route goes to non-biodegradable side.";
+        } else {
+          heroTitle.textContent = "Other message";
+          heroDetail.textContent = "Received: " + kind;
+        }
+      }
+
+      function disconnectClient() {
+        if (client && client.isConnected()) {
+          client.disconnect();
+        }
+        client = null;
+        setConn(false, "Disconnected");
+      }
+
+      function connectClient() {
+        const cfg = readForm();
+
+        if (!cfg.host || !cfg.port || !cfg.commandTopic) {
+          setConn(false, "Missing host/port/topic");
+          heroTitle.textContent = "Invalid MQTT settings";
+          heroDetail.textContent = "Host, WS port, and command topic are required.";
+          return;
+        }
+
+        if (client && client.isConnected()) {
+          client.disconnect();
+        }
+
+        saveCFG(cfg);
+        drawConnectionInfo(cfg);
+
+        const clientId = "webdash_" + Math.random().toString(16).slice(2, 12);
+        client = new Paho.MQTT.Client(cfg.host, cfg.port, cfg.path, clientId);
+
+        client.onConnectionLost = function (res) {
+          if (res.errorCode !== 0) {
+            setConn(false, "Disconnected");
+            console.warn(res.errorMessage);
+          }
+        };
+
+        client.onMessageArrived = function (message) {
+          const payload = message.payloadString;
+          console.log("MQTT:", message.destinationName, payload);
+          onKind(normalizePayload(payload));
+        };
+
+        setConn(false, "Connecting…");
+        client.connect({
+          useSSL: cfg.useSSL,
+          timeout: 20,
+          mqttVersion: 4,
+          onSuccess: function () {
+            setConn(true, "Connected · " + cfg.host);
+            client.subscribe(cfg.commandTopic);
+            if (cfg.dataTopic && cfg.dataTopic !== cfg.commandTopic) {
+              client.subscribe(cfg.dataTopic);
+            }
+          },
+          onFailure: function (e) {
+            setConn(false, "Connection failed");
+            heroTitle.textContent = "Could not connect";
+            heroDetail.textContent = (e && e.errorMessage) || "Check broker, WS port/path, and firewall.";
+            console.error(e);
+          },
+        });
+      }
+
+      btnConnect.addEventListener("click", connectClient);
+      btnReconnect.addEventListener("click", function () {
+        disconnectClient();
+        setTimeout(connectClient, 150);
       });
+      btnDisconnect.addEventListener("click", disconnectClient);
+
+      const initialCFG = loadClientCFG();
+      fillForm(initialCFG);
+      drawConnectionInfo(initialCFG);
+      connectClient();
     </script>
   </body>
 </html>

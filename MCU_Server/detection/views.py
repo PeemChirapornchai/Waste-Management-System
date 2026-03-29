@@ -1,7 +1,6 @@
 import os
 import cv2
 import numpy as np
-import paho.mqtt.publish as publish
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
@@ -9,63 +8,70 @@ from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from ultralytics import YOLO
 
-# 1. LAZY LOADING THE YOLO NANO MODEL
+# Lazy-loaded YOLO model (optional /api/waste/ uploads)
 AI_MODEL = None
 
-# 1. Update the model loading to use your custom .pt file
+
 def get_yolo_model():
     global AI_MODEL
     if AI_MODEL is None:
-        print("Loading custom GitHub waste model...")
-        # Point this to your models folder. Update 'waste.pt' to your actual file name!
-        model_path = os.path.join(settings.BASE_DIR, 'detection', 'models', 'last.pt')
-        AI_MODEL = YOLO(model_path) 
+        print("Loading waste model...")
+        model_path = os.path.join(settings.BASE_DIR, "detection", "models", "last.pt")
+        AI_MODEL = YOLO(model_path)
     return AI_MODEL
 
-# 2. MAPPING DICTIONARY: Convert everyday objects to your Waste Categories
-WASTE_MAPPING = {
-    # BIO Items (Paper, Cardboard, Wood)
-    'cardboard_bowl': 'BIO',
-    'cardboard_box': 'BIO',
-    'reuseable_paper': 'BIO',
-    'scrap_paper': 'BIO',
-    'stick': 'BIO',
-    
-    # NON-BIO Items (Plastics, Metals, Hazardous, etc.)
-    'battery': 'NON-BIO',
-    'can': 'NON-BIO',
-    'chemical_plastic_bottle': 'NON-BIO',
-    'chemical_plastic_gallon': 'NON-BIO',
-    'chemical_spray_can': 'NON-BIO',
-    'light_bulb': 'NON-BIO',
-    'paint_bucket': 'NON-BIO',
-    'plastic_bag': 'NON-BIO',
-    'plastic_bottle': 'NON-BIO',
-    'plastic_bottle_cap': 'NON-BIO',
-    'plastic_box': 'NON-BIO',
-    'plastic_cultery': 'NON-BIO', # Keeping the exact typo from the model!
-    'plastic_cup': 'NON-BIO',
-    'plastic_cup_lid': 'NON-BIO',
-    'scrap_plastic': 'NON-BIO',
-    'snack_bag': 'NON-BIO',
-    'straw': 'NON-BIO'
-}
 
-# MQTT Settings (Change this to your laptop's hotspot IP!)
-MQTT_BROKER_IP = "192.168.137.1" 
-MQTT_PORT = 1883
-MQTT_TOPIC = "waste/servo/command"
+# Maps YOLO class names to categories (payloads match shared_lib/wifi_op/mqtt_cmd.h)
+WASTE_MAPPING = {
+    "cardboard_bowl": "BIO",
+    "cardboard_box": "BIO",
+    "reuseable_paper": "BIO",
+    "scrap_paper": "BIO",
+    "stick": "BIO",
+    "battery": "N-BIO",
+    "can": "N-BIO",
+    "chemical_plastic_bottle": "N-BIO",
+    "chemical_plastic_gallon": "N-BIO",
+    "chemical_spray_can": "N-BIO",
+    "light_bulb": "N-BIO",
+    "paint_bucket": "N-BIO",
+    "plastic_bag": "N-BIO",
+    "plastic_bottle": "N-BIO",
+    "plastic_bottle_cap": "N-BIO",
+    "plastic_box": "N-BIO",
+    "plastic_cultery": "N-BIO",
+    "plastic_cup": "N-BIO",
+    "plastic_cup_lid": "N-BIO",
+    "scrap_plastic": "N-BIO",
+    "snack_bag": "N-BIO",
+    "straw": "N-BIO",
+}
 
 LATEST_DATA = {
     "label": "Waiting...",
     "confidence": 0.0,
     "image_url": None,
-    "action_taken": "None"
+    "action_taken": "None",
 }
 
 
 def dashboard(request):
-    return render(request, "dashboard.html")
+    """Serve the live dashboard; MQTT is handled in the browser via WebSockets."""
+    return render(
+        request,
+        "dashboard.html",
+        {
+            "mqtt_host": settings.MQTT_BROKER_HOST,
+            "mqtt_tcp_port": settings.MQTT_BROKER_PORT,
+            "mqtt_camera_tcp_port": settings.MQTT_CAMERA_TCP_PORT,
+            "mqtt_servo_tcp_port": settings.MQTT_SERVO_TCP_PORT,
+            "mqtt_ws_port": settings.MQTT_WS_PORT,
+            "mqtt_ws_path": settings.MQTT_WS_PATH,
+            "mqtt_ws_use_ssl": settings.MQTT_WS_USE_SSL,
+            "mqtt_command_topic": settings.MQTT_TOPIC,
+            "mqtt_data_topic": settings.MQTT_DATA_TOPIC,
+        },
+    )
 
 
 def get_latest_status(request):
@@ -79,12 +85,12 @@ def get_latest_status(request):
 
 @csrf_exempt
 def process_waste(request):
+    """Optional server-side inference; does not publish MQTT (ESP32 + browser handle live path)."""
     global LATEST_DATA
 
-    if request.method == 'POST' and 'image' in request.FILES:
-        image_file = request.FILES['image']
-        
-        # Save Image for the Dashboard
+    if request.method == "POST" and "image" in request.FILES:
+        image_file = request.FILES["image"]
+
         fs = FileSystemStorage()
         filename = "latest_capture.jpg"
         if fs.exists(filename):
@@ -92,64 +98,44 @@ def process_waste(request):
         saved_name = fs.save(filename, image_file)
         image_url = fs.url(saved_name)
 
-        # Decode Image for YOLO
         image_bytes = image_file.read()
         np_arr = np.frombuffer(image_bytes, np.uint8)
         img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
-        # Run YOLOv8 AI
         model = get_yolo_model()
         results = model(img)
 
         detected_label = "Unknown"
         confidence_score = 0.0
-        mqtt_payload = None
-        action_str = "No action taken"
+        action_str = "No classification"
 
-        # Check if YOLO found anything
         if len(results) > 0 and len(results[0].boxes) > 0:
             top_box = results[0].boxes[0]
             confidence_score = float(top_box.conf[0])
             class_id = int(top_box.cls[0])
-            
-            # Get the name (e.g., 'bottle', 'apple')
-            raw_class_name = model.names[class_id].lower() 
+            raw_class_name = model.names[class_id].lower()
             print(f"AI Detected: {raw_class_name} with confidence {confidence_score}")
-            
-            # Map the object to BIO or NON-BIO if confidence is high enough
+
             if confidence_score >= 0.50 and raw_class_name in WASTE_MAPPING:
-                detected_category = WASTE_MAPPING[raw_class_name]
-                
-                if detected_category == 'BIO':
-                    detected_label = "BIO"
-                    mqtt_payload = "BIO" # The exact string your ESP32 servo needs
-                elif detected_category == 'NON-BIO':
-                    detected_label = "NON-BIO"
-                    mqtt_payload = "NON_BIO" # The exact string your ESP32 servo needs
-
-        # If a valid object was found, send MQTT command
-        if mqtt_payload:
-            try:
-                publish.single(MQTT_TOPIC, payload=mqtt_payload, hostname=MQTT_BROKER_IP, port=MQTT_PORT)
-                action_str = f"Published '{mqtt_payload}' to Servo"
-                print(action_str)
-            except Exception as e:
-                action_str = f"MQTT Failed: {str(e)}"
-                print(action_str)
+                detected_label = WASTE_MAPPING[raw_class_name]
+                action_str = f"Classified as {detected_label} (server inference only)"
+            else:
+                action_str = "Skipped (unknown class or low confidence)"
         else:
-            action_str = "Skipped (Unknown object or low confidence)"
+            action_str = "No objects detected"
 
-        # Update global memory for the Dashboard
-        LATEST_DATA.update({
-            "label": detected_label,
-            "confidence": round(confidence_score, 2),
-            "image_url": image_url,
-            "action_taken": action_str
-        })
+        LATEST_DATA.update(
+            {
+                "label": detected_label,
+                "confidence": round(confidence_score, 2),
+                "image_url": image_url,
+                "action_taken": action_str,
+            }
+        )
 
         return JsonResponse({"status": "success", "data": LATEST_DATA})
 
-    elif request.method == 'GET':
+    if request.method == "GET":
         return JsonResponse(LATEST_DATA)
 
     return JsonResponse({"status": "error", "message": "Invalid request"})

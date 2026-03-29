@@ -127,7 +127,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# MQTT Broker Settings (Defaults to EMQX public broker if not set in Docker)
+# MQTT Broker Settings (aligned with platformio.ini / ESP32 TCP clients)
 MQTT_BROKER_HOST = os.environ.get("MQTT_BROKER_HOST", "broker.emqx.io")
 MQTT_BROKER_PORT = int(os.environ.get("MQTT_BROKER_PORT", 1883))
 MQTT_TOPIC = os.environ.get("MQTT_TOPIC", "waste-management-system/command")
+MQTT_DATA_TOPIC = os.environ.get("MQTT_DATA_TOPIC", "waste-management-system/data")
+
+# ESP32 device ports (camera + servo) are TCP MQTT ports.
+# Keep both defaults aligned with platformio.ini common build flags.
+MQTT_CAMERA_TCP_PORT = int(os.environ.get("MQTT_CAMERA_TCP_PORT", MQTT_BROKER_PORT))
+MQTT_SERVO_TCP_PORT = int(os.environ.get("MQTT_SERVO_TCP_PORT", MQTT_BROKER_PORT))
+
+# Browser (Paho WebSocket) — EMQX public WSS defaults
+MQTT_WS_PORT = int(os.environ.get("MQTT_WS_PORT", 8084))
+MQTT_WS_USE_SSL = os.environ.get("MQTT_WS_USE_SSL", "true").lower() in ("1", "true", "yes")
+MQTT_WS_PATH = os.environ.get("MQTT_WS_PATH", "/mqtt")
