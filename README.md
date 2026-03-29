@@ -205,7 +205,7 @@ The camera MCU captures image frames and runs Edge Impulse inference to detect w
 
 Only valid detections with confidence above a certain threshold will trigger command publishing to ensure reliable operation. The camera MCU also uploads captured images and metadata (timestamp, detected class, confidence) to a server via HTTP for dashboard monitoring.
 
-`#define CONFIDENCE_THRESHOLD 0.5`
+`#define CONFIDENCE_THRESHOLD 0.3` in `ai_handler.cpp` can be adjusted to tune the sensitivity of command publishing based on the model's performance characteristics.
 
 Specification:
 
@@ -384,7 +384,7 @@ All key parameters are defined in `platformio.ini` (firmware) and `MCU_Server/co
 | Server IP (for HTTP upload) | `MCU_Camera/src/main.cpp`        | `192.168.1.104`                     |
 | MQTT Broker                 | `platformio.ini`                 | `broker.emqx.io:1883`               |
 | MQTT Command Topic          | `platformio.ini`                 | `waste-management-system/command`   |
-| Confidence Threshold        | `MCU_Camera/src/main.cpp`        | `0.5`                               |
+| Confidence Threshold        | `MCU_Camera/src/ai_handler.cpp`  | `0.3`                               |
 | Send Cooldown Interval      | `MCU_Camera/src/main.cpp`        | `5000 ms`                           |
 
 ## For Future Work
