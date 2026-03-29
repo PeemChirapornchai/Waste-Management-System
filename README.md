@@ -12,11 +12,12 @@
 5. [User Stories](#user-stories)
 6. [Hardware Components](#hardware-components)
 7. [Software Components](#software-components)
-8. [Image detection and classification](#image-detection-and-classification)
-9. [How it Works](#how-it-works)
-10. [Dashboard and Monitoring](#dashboard-and-monitoring)
-11. [For Future Work](#for-future-work)
-12. [Conclusion](#conclusion)
+8. [Project Structure](#project-structure)
+9. [Image detection and classification](#image-detection-and-classification)
+10. [How it Works](#how-it-works)
+11. [Dashboard and Monitoring](#dashboard-and-monitoring)
+12. [For Future Work](#for-future-work)
+13. [Conclusion](#conclusion)
 
 </details>
 
@@ -48,21 +49,20 @@ The Waste Management System is an AIoT-based solution designed to optimize waste
 
 ## Stakeholders
 
-1. **Residents (End Users)**: Need quick and accurate waste disposal with minimal manual effort.
-
-2. **Municipality Operators**: Need consistent sorting quality to reduce re-sorting work and improve collection efficiency.
-
-3. **Environmental Organizations**: Need reliable waste-separation data to support campaigns and policy recommendations.
+| #   | Stakeholder                     | Need                                                                                    |
+| --- | ------------------------------- | --------------------------------------------------------------------------------------- |
+| 1   | **Residents (End Users)**       | Quick and accurate waste disposal with minimal manual effort.                           |
+| 2   | **Municipality Operators**      | Consistent sorting quality to reduce re-sorting work and improve collection efficiency. |
+| 3   | **Environmental Organizations** | Reliable waste-separation data to support campaigns and policy recommendations.         |
 
 ## User Stories
 
-1. As a resident, I want the system to sort waste automatically, so that disposal is easy and correct.
-
-2. As a municipality operator, I want reliable BIO/N-BIO sorting, so that manual correction effort and operating cost are reduced.
-
-3. As an environmental analyst, I want to monitor classification trends, so that I can support waste management decisions with data.
-
-4. As an environmental analyst, I want a dashboard view of classification activity, so that I can monitor waste-sorting trends over time.
+| #   | As a ...              | I want ...                                  | So that ...                                              |
+| --- | --------------------- | ------------------------------------------- | -------------------------------------------------------- |
+| 1   | Resident              | The system to sort waste automatically      | Disposal is easy and correct.                            |
+| 2   | Municipality Operator | Reliable BIO/N-BIO sorting                  | Manual correction effort and operating cost are reduced. |
+| 3   | Environmental Analyst | To monitor classification trends            | I can support waste management decisions with data.      |
+| 4   | Environmental Analyst | A dashboard view of classification activity | I can monitor waste-sorting trends over time.            |
 
 ## Hardware Components
 
@@ -93,7 +93,7 @@ The Waste Management System is an AIoT-based solution designed to optimize waste
 
 ![alt text](images/Cucumber-RS.png)
 
-- **Role**: Controlling acutors based on received commands from LilyGo T-SIMCAM ESP32-S3 (MQTT subscribe to command topic and execute servo movement)
+- **Role**: Controlling actuators based on received commands from LilyGo T-SIMCAM ESP32-S3 (MQTT subscribe to command topic and execute servo movement)
 - **Communication**: Wi-Fi + MQTT subscribe to command topic and execute servo movement
 - **MQTT Client ID**: esp32s2_servo
 - **Topic**: waste-management-system/command
@@ -103,7 +103,7 @@ The Waste Management System is an AIoT-based solution designed to optimize waste
 ![alt text](images/PC-Dashboard.png)
 
 - **Role**: For monitoring and visualizing classification data and system status through a dashboard interface
-- **Communication**: Wi-Fi + HTTP monitoring classification data and system status from server
+- **Communication**: Wi-Fi + MQTT (real-time command stream) + HTTP (dashboard page/config and image metadata)
 
 ### Servo Motor
 
@@ -118,15 +118,81 @@ The Waste Management System is an AIoT-based solution designed to optimize waste
 - **Power supply:**
   - USB power for both microcontrollers
   - Servo motors using 5V from the Cucumber RS pin headers.
-- **Wires and Connectors:** Jumper wires for GPIO control, common ground between MCU and servos.
-- **Waste bins:** Two physical bins or channels for Biodegradable and Non-Biodegradable outputs.
+- **Wires and Connectors:**
+  - Jumper wires for GPIO control, common ground between MCU and servos.
+- **Waste bins:**
+  - Two physical bins or channels for Biodegradable and Non-Biodegradable outputs.
 
 ## Software Components
 
-- **Edge Impulse Inferencing Module**: Captures camera frames and runs Edge Impulse inference to detect waste, then maps model output labels to BIO and N-BIO commands.
+- **Edge Impulse Inferencing Module**:
+- Captures camera frames and runs Edge Impulse inference to detect waste, then maps model output labels to BIO and N-BIO commands.
+
+[ESP32-Cam-Edge-Impulse](https://github.com/luisomoreau/ESP32-Cam-Edge-Impulse)
+
 - **Wi-Fi + MQTT + HTTP Communication Layer**: Uses Wi-Fi and PubSubClient MQTT to publish commands from the camera MCU and subscribe/receive commands on the servo MCU, while using HTTP to upload captured images/metadata to the server.
 - **Servo Control Logic**: Implements a state machine to control servo movements based on received commands, ensuring safe operation and preventing command conflicts.
 - **Dashboard Interface**: A web-based dashboard to visualize incoming classification commands and system status in near real time for monitoring and demonstration purposes.
+
+## Project Structure
+
+The project is split into three independent modules and one shared library:
+
+**`MCU_Camera`** — ESP32-S3 camera inference module
+
+```
+MCU_Camera/
+├── src/
+│   ├── main.cpp          # Entry point: AI inference loop, MQTT publish, HTTP image upload
+│   ├── ai_handler.cpp    # Edge Impulse inference and result parsing
+│   └── hw_camera.cpp     # Camera hardware initialization and frame capture
+├── include/
+│   ├── ai_handler.h
+│   └── hw_camera.h
+└── lib/
+    └── Waste_Management_Project_inferencing/  # Compiled Edge Impulse model library
+```
+
+**`MCU_Servo`** — ESP32-S2 servo control module
+
+```
+MCU_Servo/
+├── src/
+│   └── main.cpp          # Entry point: MQTT receive and servo movement (RTOS tasks)
+└── lib/
+    └── servo_motor/
+        ├── servo_motor.cpp   # Servo motor control logic
+        └── servo_motor.h
+```
+
+**`shared_lib`** — Shared firmware library (used by both MCUs)
+
+```
+shared_lib/
+├── wifi_op/
+│   ├── wifi_op.cpp / .h   # Wi-Fi and MQTT connection management
+│   └── mqtt_cmd.h         # MQTT command string definitions
+└── system_state/
+    └── system_state.cpp / .h  # State machine (READY / BUSY) for the servo MCU
+```
+
+**`MCU_Server`** — Django web server and dashboard
+
+```
+MCU_Server/
+├── manage.py
+├── requirements.txt
+├── config/               # Django project settings and URL routing
+└── detection/            # Main app: HTTP endpoints, static files, dashboard template
+    ├── views.py          # Image upload endpoint and dashboard view
+    ├── static/detection/
+    │   └── js/
+    │       └── dashboard.js        # Real-time dashboard update logic
+    └── templates/
+        └── dashboard.html          # Dashboard UI
+```
+
+---
 
 ## Image detection and classification
 
@@ -187,7 +253,7 @@ Location: x:24, y:16, w:8, h:8
 7. **Return to Safe Position**
    - After a short delay for disposal, the servo returns to home position and state returns to READY for the waste separation.
 
-8. **Send data to server to dashboard**
+8. **Send data to server for dashboard monitoring**
    - The camera MCU also uploads captured images and metadata (timestamp, detected class, confidence) to a server via HTTP for dashboard monitoring.
 
 ## Dashboard and Monitoring
@@ -209,6 +275,8 @@ _Summary:_
 - Extend the system to sort more waste types (for example: plastic, paper, glass, and metal) to support real-world waste separation better.
 
 - Analyze collected classification data to improve future waste management decisions, such as pickup planning, bin placement, and waste trend monitoring.
+
+## How to Run
 
 ## Conclusion
 
