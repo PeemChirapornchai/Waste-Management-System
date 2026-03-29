@@ -48,7 +48,7 @@ The Waste Management System is an AIoT-based solution designed to optimize waste
 | ------------------------ | -------- | ------------------------------------------------------------------------------------------------------ |
 | LilyGo T-SIMCAM ESP32-S3 | 1        | Microcontroller with camera module for inferencing and sending data to Cucumber RS                     |
 | Cucumber RS              | 1        | Microcontroller for receiving data from LilyGo T-SIMCAM ESP32-S3 and controlling actuators             |
-| Servo Motors             | 2        | Actuator for controlling the separation of type of waste for Biodegradable and Non-Biodegradable waste |
+| Servo Motors             | 1        | Actuator for controlling the separation of type of waste for Biodegradable and Non-Biodegradable waste |
 
 ---
 
@@ -58,7 +58,7 @@ The Waste Management System is an AIoT-based solution designed to optimize waste
 
 ![alt text](images/LilyGo-T-SIMCAM-ESP32-S3.png)
 
-- **Role**: Camera inferencing and sending data to MCU_B
+- **Role**: Inferencing and sending data to Cucumber RS (via MQTT publish to broker)
 - **Communication**: Wi-Fi + MQTT publish to command topic
 - **MQTT Broker**: broker.emqx.io:1883
 - **MQTT Client ID**: esp32s3box_camera
@@ -68,15 +68,17 @@ The Waste Management System is an AIoT-based solution designed to optimize waste
 
 ![alt text](images/Cucumber-RS.png)
 
-- **Role**: Receiving data from MCU_A and controlling actuators
+- **Role**: Controlling acutors based on received commands from LilyGo T-SIMCAM ESP32-S3 (MQTT subscribe to command topic and execute servo movement)
 - **Communication**: Wi-Fi + MQTT subscribe to command topic and execute servo movement
 - **MQTT Client ID**: esp32s2_servo
 - **Topic**: waste-management-system/command
 
 ### Additional Requirements
 
-- **Power supply:** Stable 5V supply for both boards and servo motors, with sufficient current for peak servo movement.
-- **Wires and Connectors:** Jumper wires for GPIO control, common ground between MCU and servos, and USB cables for programming/debugging.
+- **Power supply:**
+  - USB power for both microcontrollers
+  - Servo motors using 5V from the Cucumber RS pin headers.
+- **Wires and Connectors:** Jumper wires for GPIO control, common ground between MCU and servos.
 - **Waste bins:** Two physical bins or channels for Biodegradable and Non-Biodegradable outputs.
 
 ## Software Components
@@ -86,14 +88,35 @@ The Waste Management System is an AIoT-based solution designed to optimize waste
 - **Servo Control Module**: Executes actuator movement for BIO and N-BIO sorting, then returns servos to home position after disposal.
 - **State-Based Control**: Uses a servo state machine to ensure commands are processed safely and in order.
 - **Monitoring Interface**: A dashboard/UI for monitoring classification history, timestamps, and bin-related status.
- 
-## State Diagram
 
-![alt text](images/state.png)
+## Image detection and classification
+
+The camera MCU captures image frames and runs Edge Impulse inference to detect waste type. The model outputs a class label (for example: "B" for biodegradable, "NB" for non-biodegradable) and confidence score. The camera MCU then maps these labels to command messages (BIO or N-BIO) and publishes them over MQTT to the servo MCU for actuation.
+
+Specification:
+
+| Item       | Details                                                                                                                 |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------- |
+| **Input**  | Image frames captured by the camera module (240x240 pixels, RGB format)                                                 |
+| **Output** | Detected class label (for example: "B" for biodegradable, "NB" for non-biodegradable) and confidence score (0.0 to 1.0) |
+
+Example output from the camera MCU:
+
+```
+
+Predictions (DSP: 4 ms, Classification: 144 ms, Anomaly: 0 ms):
+Detected: B with confidence 0.64
+Location: x:24, y:16, w:8, h:8
+
+```
 
 ---
 
 ## How it Works
+
+### State Diagram
+
+![alt text](images/state.png)
 
 1. **System Startup**
    - The camera MCU initializes Serial, PSRAM, and camera hardware.
@@ -108,7 +131,7 @@ The Waste Management System is an AIoT-based solution designed to optimize waste
      - N-BIO for non-biodegradable waste
 
 4. **Command Transmission**
-   - The camera MCU publishes the command over MQTT to waste-management-system/command.
+   - The camera MCU publishes the command over MQTT to Topic: waste-management-system/command.
 
 5. **Command Reception and Validation**
    - The servo MCU receives the MQTT payload, checks that the servo state machine is READY, then transitions to command-processing state.
@@ -119,7 +142,9 @@ The Waste Management System is an AIoT-based solution designed to optimize waste
      - N-BIO triggers servo movement to non-biodegradable position.
 
 7. **Return to Safe Position**
-   - After a short delay for disposal, the servo returns to home position and state returns to READY for the next item.
+   - After a short delay for disposal, the servo returns to home position and state returns to READY for the waste separation.
+
+## Dashboard and Monitoring
 
 ## For Future Work
 
