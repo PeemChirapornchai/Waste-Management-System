@@ -2,8 +2,9 @@
 #include <PubSubClient.h>
 #include "wifi_op.h"
 
-#define WIFI_SSID "MOOOUD_2.4G"
-#define WIFI_PASSWORD "61906190"
+// modify wifi setup
+#define WIFI_SSID "YourWiFiSSID"
+#define WIFI_PASSWORD "YourWiFiPassword"
 
 WiFiClient ESPClient;
 PubSubClient MQTTclient(ESPClient);

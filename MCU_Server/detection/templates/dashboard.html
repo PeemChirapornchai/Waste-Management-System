@@ -1,0 +1,180 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Waste Management - Live MQTT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{% static 'detection/css/dashboard.css' %}" />
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>Waste stream - live from ESP32</h1>
+        <p class="sub">
+          Browser subscribes over WebSockets while ESP32 Camera/Servo keep using
+          TCP MQTT.
+        </p>
+        <div class="pill" id="conn-pill">
+          <span class="dot" id="conn-dot"></span>
+          <span id="conn-text">Connecting...</span>
+        </div>
+        <p class="topic" id="topic-line"></p>
+        <p class="meta" id="ports-line"></p>
+
+        <section class="config" aria-label="MQTT WebSocket Settings">
+          <div class="config-grid">
+            <div class="field">
+              <label for="host">Broker Host</label>
+              <input id="host" type="text" />
+            </div>
+            <div class="field">
+              <label for="ws-port">WS Port</label>
+              <input id="ws-port" type="number" min="1" max="65535" />
+            </div>
+            <div class="field">
+              <label for="ws-path">WS Path</label>
+              <input id="ws-path" type="text" />
+            </div>
+            <div class="field">
+              <label for="cmd-topic">Command Topic</label>
+              <input id="cmd-topic" type="text" />
+            </div>
+            <div class="field">
+              <label for="data-topic">Data Topic</label>
+              <input id="data-topic" type="text" />
+            </div>
+          </div>
+          <div class="cfg-actions">
+            <button id="btn-connect" class="primary" type="button">
+              Connect
+            </button>
+            <button id="btn-reconnect" class="ghost" type="button">
+              Reconnect
+            </button>
+            <button id="btn-disconnect" class="ghost" type="button">
+              Disconnect
+            </button>
+          </div>
+        </section>
+      </header>
+
+      <div class="stage">
+        <article class="panel bio" id="panel-bio" aria-label="Biodegradable">
+          <h2>Bio waste</h2>
+          <p class="tag">Compostable and organic</p>
+          <div class="illus" aria-hidden="true">
+            <svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg">
+              <ellipse
+                cx="100"
+                cy="130"
+                rx="70"
+                ry="12"
+                fill="rgba(0,0,0,.2)"
+              />
+              <path
+                d="M100 28c-22 0-40 18-44 42-8 4-14 14-14 26 0 16 13 29 29 29h58c16 0 29-13 29-29 0-12-6-22-14-26-4-24-22-42-44-42z"
+                fill="#95d5b2"
+              />
+              <path
+                d="M100 36c-12 22-8 48 0 68 8-20 12-46 0-68z"
+                fill="rgba(45,106,79,.35)"
+              />
+              <ellipse cx="100" cy="38" rx="18" ry="10" fill="#52b788" />
+              <path
+                d="M82 52 Q100 62 118 52"
+                stroke="#1b4332"
+                stroke-width="3"
+                fill="none"
+                stroke-linecap="round"
+              />
+              <circle cx="88" cy="78" r="6" fill="#40916c" />
+              <circle cx="112" cy="82" r="5" fill="#52b788" />
+              <path
+                d="M95 95 Q100 108 105 95"
+                stroke="#1b4332"
+                stroke-width="2.5"
+                fill="none"
+              />
+            </svg>
+          </div>
+        </article>
+
+        <article
+          class="panel nonbio"
+          id="panel-nonbio"
+          aria-label="Non-biodegradable"
+        >
+          <h2>Non-bio waste</h2>
+          <p class="tag">Recyclables and residuals</p>
+          <div class="illus" aria-hidden="true">
+            <svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg">
+              <ellipse
+                cx="100"
+                cy="130"
+                rx="70"
+                ry="12"
+                fill="rgba(0,0,0,.2)"
+              />
+              <rect
+                x="58"
+                y="48"
+                width="84"
+                height="72"
+                rx="14"
+                fill="#98c1d9"
+                stroke="#3d5a80"
+                stroke-width="3"
+              />
+              <rect
+                x="72"
+                y="62"
+                width="56"
+                height="44"
+                rx="6"
+                fill="#e0fbfc"
+                opacity="0.9"
+              />
+              <path
+                d="M100 52v-18"
+                stroke="#3d5a80"
+                stroke-width="4"
+                stroke-linecap="round"
+              />
+              <ellipse cx="100" cy="30" rx="22" ry="8" fill="#ee6c4d" />
+              <rect
+                x="76"
+                y="108"
+                width="48"
+                height="8"
+                rx="2"
+                fill="#293241"
+              />
+              <circle cx="88" cy="78" r="4" fill="#3d5a80" />
+              <circle cx="112" cy="84" r="4" fill="#3d5a80" />
+            </svg>
+          </div>
+        </article>
+      </div>
+
+      <div class="hero-msg" id="hero">
+        <strong id="hero-title">Listening on MQTT...</strong>
+        <span id="hero-detail"
+          >Waiting for the camera ESP32 to publish a command.</span
+        >
+        <div class="time" id="last-time"></div>
+      </div>
+    </div>
+
+    {{ mqtt_server_cfg|json_script:"mqtt-server-config" }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+    <script src="{% static 'detection/js/dashboard.constants.js' %}"></script>
+    <script src="{% static 'detection/js/dashboard.js' %}"></script>
+  </body>
+</html>
