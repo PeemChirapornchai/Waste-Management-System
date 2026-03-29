@@ -270,13 +270,123 @@ _Summary:_
 3. Helps operators quickly check if the communication pipeline is active during testing.
 4. Supports basic monitoring of behavior trends such as repeated class output over short periods.
 
+## How to Run
+
+### Prerequisites
+
+| Tool                                                          | Purpose                                      |
+| ------------------------------------------------------------- | -------------------------------------------- |
+| [PlatformIO IDE](https://platformio.org/) (VS Code extension) | Build and flash firmware for both MCUs       |
+| Python 3.x + pip                                              | Run the Django server                        |
+| USB cables                                                    | Connect both ESP32 boards to PC for flashing |
+
+---
+
+### Step 1 — Configure Wi-Fi credentials
+
+Open `shared_lib/wifi_op/wifi_op.cpp` and update the SSID and password to match your local network:
+
+```cpp
+#define WIFI_SSID     "YourWiFiSSID"
+#define WIFI_PASSWORD "YourWiFiPassword"
+```
+
+> Both MCUs share this file, so one change applies to both boards.
+
+---
+
+### Step 2 — Configure the server IP
+
+Open `MCU_Camera/src/main.cpp` and update the server IP to match your PC's address on the local network:
+
+```cpp
+// sendImageHTTP() — update the IP to your PC's local address
+snprintf(url, sizeof(url), "http://192.168.1.104:8000/upload?...", ...);
+```
+
+> Run `ipconfig` (Windows) or `ip a` (Linux/Mac) to find your PC's local IP.
+
+---
+
+### Step 3 — Flash MCU_Camera (LilyGo T-SIMCAM ESP32-S3)
+
+1. Connect the LilyGo T-SIMCAM board via USB.
+2. In VS Code, open the PlatformIO sidebar and select the `esp32s3box` environment, **or** run:
+
+```bash
+pio run --target upload --environment esp32s3box
+```
+
+3. Open the Serial Monitor at **115200 baud** to verify the board connects to Wi-Fi and MQTT.
+
+---
+
+### Step 4 — Flash MCU_Servo (Cucumber RS ESP32-S2)
+
+1. Connect the Cucumber RS board via USB.
+2. Select the `esp32-s2-saola-1` environment and upload, **or** run:
+
+```bash
+pio run --target upload --environment esp32-s2-saola-1
+```
+
+3. Open the Serial Monitor to confirm the servo MCU reaches READY state.
+
+---
+
+### Step 5 — Run the Django Server
+
+```bash
+cd MCU_Server
+python -m venv .venv
+
+# Windows
+.venv\Scripts\activate
+
+# macOS / Linux
+source .venv/bin/activate
+
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver 0.0.0.0:8000
+```
+
+The dashboard is available at: **`http://<your-PC-IP>:8000`**
+
+> Use `0.0.0.0:8000` (not `127.0.0.1`) so the camera MCU can reach the server over the local network.
+
+---
+
+### Step 6 — Verify the System
+
+1. Point the camera at a piece of waste.
+2. Check the Serial Monitor on the camera MCU — a detection line should appear:
+   ```
+   Detected: B with confidence 0.64
+   ```
+3. The servo MCU Serial Monitor should show the received command and servo movement.
+4. The dashboard at `http://<your-PC-IP>:8000` should display the latest classification event.
+
+---
+
+### Configuration Reference
+
+All key parameters are defined in `platformio.ini` (firmware) and `MCU_Server/config/settings.py` (server):
+
+| Parameter                   | Location                         | Default                             |
+| --------------------------- | -------------------------------- | ----------------------------------- |
+| Wi-Fi SSID / Password       | `shared_lib/wifi_op/wifi_op.cpp` | `YourWiFiSSID` / `YourWiFiPassword` |
+| Server IP (for HTTP upload) | `MCU_Camera/src/main.cpp`        | `192.168.1.104`                     |
+| MQTT Broker                 | `platformio.ini`                 | `broker.emqx.io:1883`               |
+| MQTT Command Topic          | `platformio.ini`                 | `waste-management-system/command`   |
+| Confidence Threshold        | `MCU_Camera/src/main.cpp`        | `0.5`                               |
+| Send Cooldown Interval      | `MCU_Camera/src/main.cpp`        | `5000 ms`                           |
+
 ## For Future Work
 
 - Extend the system to sort more waste types (for example: plastic, paper, glass, and metal) to support real-world waste separation better.
 
 - Analyze collected classification data to improve future waste management decisions, such as pickup planning, bin placement, and waste trend monitoring.
-
-## How to Run
 
 ## Conclusion
 
