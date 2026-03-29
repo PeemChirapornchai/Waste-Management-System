@@ -68,11 +68,12 @@ The Waste Management System is an AIoT-based solution designed to optimize waste
 
 ### Core Components
 
-| Component                | Quantity | Purpose                                                                                                |
-| ------------------------ | -------- | ------------------------------------------------------------------------------------------------------ |
-| LilyGo T-SIMCAM ESP32-S3 | 1        | Microcontroller with camera module for inferencing and sending data to Cucumber RS                     |
-| Cucumber RS              | 1        | Microcontroller for receiving data from LilyGo T-SIMCAM ESP32-S3 and controlling actuators             |
-| Servo Motors             | 1        | Actuator for controlling the separation of type of waste for Biodegradable and Non-Biodegradable waste |
+| Component                         | Quantity | Purpose                                                                                                |
+| --------------------------------- | -------- | ------------------------------------------------------------------------------------------------------ |
+| LilyGo T-SIMCAM ESP32-S3          | 1        | Microcontroller with camera module for inferencing and sending data to Cucumber RS                     |
+| Cucumber RS                       | 1        | Microcontroller for receiving data from LilyGo T-SIMCAM ESP32-S3 and controlling actuators             |
+| Personal Computer (for Dashboard) | 1        | For monitoring and visualizing classification data and system status through a dashboard interface     |
+| Servo Motors                      | 1        | Actuator for controlling the separation of type of waste for Biodegradable and Non-Biodegradable waste |
 
 ---
 
@@ -97,7 +98,14 @@ The Waste Management System is an AIoT-based solution designed to optimize waste
 - **MQTT Client ID**: esp32s2_servo
 - **Topic**: waste-management-system/command
 
-#### _Servo Motor_
+### Personal Computer (for Dashboard)
+
+![alt text](images/PC-Dashboard.png)
+
+- **Role**: For monitoring and visualizing classification data and system status through a dashboard interface
+- **Communication**: Wi-Fi + HTTP monitoring classification data and system status from server
+
+### Servo Motor
 
 ![alt text](images/Servo-Motor.png)
 
@@ -117,13 +125,16 @@ The Waste Management System is an AIoT-based solution designed to optimize waste
 
 - **Edge Impulse Inferencing Module**: Captures camera frames and runs Edge Impulse inference to detect waste, then maps model output labels to BIO and N-BIO commands.
 - **Wi-Fi + MQTT + HTTP Communication Layer**: Uses Wi-Fi and PubSubClient MQTT to publish commands from the camera MCU and subscribe/receive commands on the servo MCU, while using HTTP to upload captured images/metadata to the server.
-- **Servo Control Module**: Executes actuator movement for BIO and N-BIO sorting, then returns servos to home position after disposal.
-- **State-Based Control**: Uses a servo state machine to ensure commands are processed safely and in order.
-- **Monitoring Interface**: A dashboard/UI for monitoring classification history, timestamps, and bin-related status.
+- **Servo Control Logic**: Implements a state machine to control servo movements based on received commands, ensuring safe operation and preventing command conflicts.
+- **Dashboard Interface**: A web-based dashboard to visualize incoming classification commands and system status in near real time for monitoring and demonstration purposes.
 
 ## Image detection and classification
 
 The camera MCU captures image frames and runs Edge Impulse inference to detect waste type. The model outputs a class label (for example: "B" for biodegradable, "NB" for non-biodegradable) and confidence score. The camera MCU then maps these labels to command messages (BIO or N-BIO) and publishes them over MQTT to the servo MCU for actuation.
+
+Only valid detections with confidence above a certain threshold will trigger command publishing to ensure reliable operation. The camera MCU also uploads captured images and metadata (timestamp, detected class, confidence) to a server via HTTP for dashboard monitoring.
+
+`#define CONFIDENCE_THRESHOLD 0.5`
 
 Specification:
 
@@ -175,6 +186,9 @@ Location: x:24, y:16, w:8, h:8
 
 7. **Return to Safe Position**
    - After a short delay for disposal, the servo returns to home position and state returns to READY for the waste separation.
+
+8. **Send data to server to dashboard**
+   - The camera MCU also uploads captured images and metadata (timestamp, detected class, confidence) to a server via HTTP for dashboard monitoring.
 
 ## Dashboard and Monitoring
 
