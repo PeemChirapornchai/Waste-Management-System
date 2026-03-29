@@ -57,20 +57,22 @@ LATEST_DATA = {
 
 def dashboard(request):
     """Serve the live dashboard; MQTT is handled in the browser via WebSockets."""
+    mqtt_server_cfg = {
+        "host": settings.MQTT_BROKER_HOST,
+        "tcpPort": settings.MQTT_BROKER_PORT,
+        "cameraTcpPort": settings.MQTT_CAMERA_TCP_PORT,
+        "servoTcpPort": settings.MQTT_SERVO_TCP_PORT,
+        "wsPort": settings.MQTT_WS_PORT,
+        "wsPath": settings.MQTT_WS_PATH,
+        "wsUseSSL": settings.MQTT_WS_USE_SSL,
+        "commandTopic": settings.MQTT_TOPIC,
+        "dataTopic": settings.MQTT_DATA_TOPIC,
+    }
+
     return render(
         request,
         "dashboard.html",
-        {
-            "mqtt_host": settings.MQTT_BROKER_HOST,
-            "mqtt_tcp_port": settings.MQTT_BROKER_PORT,
-            "mqtt_camera_tcp_port": settings.MQTT_CAMERA_TCP_PORT,
-            "mqtt_servo_tcp_port": settings.MQTT_SERVO_TCP_PORT,
-            "mqtt_ws_port": settings.MQTT_WS_PORT,
-            "mqtt_ws_path": settings.MQTT_WS_PATH,
-            "mqtt_ws_use_ssl": settings.MQTT_WS_USE_SSL,
-            "mqtt_command_topic": settings.MQTT_TOPIC,
-            "mqtt_data_topic": settings.MQTT_DATA_TOPIC,
-        },
+        {"mqtt_server_cfg": mqtt_server_cfg},
     )
 
 
