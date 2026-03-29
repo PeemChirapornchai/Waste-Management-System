@@ -23,8 +23,7 @@ void loop()
 {
     WIFI_OP_MQTT_connection();
 
-    if (u8_Message_flag != 1)
-    {
+    if (u8_Message_flag != 1){
         return;
     }
 
@@ -65,4 +64,5 @@ void loop()
     servo_state.step(SERVO_READY); // After checking position, step to SERVO_READY
 
     u8_Message_flag = 0;
+    memset(u8_recv_buff, 0, PAYLOAD_MAX); //Clear Flag and Buffer
 }
