@@ -81,7 +81,7 @@ The Waste Management System is an AIoT-based solution designed to optimize waste
 
 #### _LilyGo T-SIMCAM ESP32-S3_
 
-![alt text](images/LilyGo-T-SIMCAM-ESP32-S3.png)
+<img src="images/LilyGo-T-SIMCAM-ESP32-S3.png" width="300">
 
 - **Role**: Inferencing and sending data to Cucumber RS (via MQTT publish to broker)
 - **Communication**: Wi-Fi + MQTT publish to command topic + HTTP image upload to server
@@ -91,7 +91,7 @@ The Waste Management System is an AIoT-based solution designed to optimize waste
 
 #### _Cucumber RS_
 
-![alt text](images/Cucumber-RS.png)
+<img src="images/Cucumber-RS.png" width="300">
 
 - **Role**: Controlling actuators based on received commands from LilyGo T-SIMCAM ESP32-S3 (MQTT subscribe to command topic and execute servo movement)
 - **Communication**: Wi-Fi + MQTT subscribe to command topic and execute servo movement
@@ -100,14 +100,14 @@ The Waste Management System is an AIoT-based solution designed to optimize waste
 
 ### Personal Computer (for Dashboard)
 
-![alt text](images/PC-Dashboard.png)
+<img src="images/PC-Dashboard.png" width="300">
 
 - **Role**: For monitoring and visualizing classification data and system status through a dashboard interface
 - **Communication**: Wi-Fi + MQTT (real-time command stream) + HTTP (dashboard page/config and image metadata)
 
 ### Servo Motor
 
-![alt text](images/Servo-Motor.png)
+<img src="images/Servo-Motor.png" width="300">
 
 - **Role**: Actuator for controlling the separation of type of waste for Biodegradable and Non-Biodegradable waste
 
@@ -225,7 +225,7 @@ Location: x:24, y:16, w:8, h:8
 
 ### State Diagram
 
-![alt text](images/state.png)
+<img src="images/state.png" width="600">
 
 1. **System Startup**
    - The camera MCU initializes Serial, PSRAM, and camera hardware.
@@ -258,7 +258,7 @@ Location: x:24, y:16, w:8, h:8
 
 ## Dashboard and Monitoring
 
-![alt text](images/Dashboard_example.jpg)
+<img src="images/Dashboard_example.jpg" width="600">
 
 The dashboard provides a lightweight real-time view of system activity for demonstration and validation.
 It focuses on operational visibility rather than control logic.
@@ -387,6 +387,10 @@ All key parameters are defined in `platformio.ini` (firmware) and `MCU_Server/co
 - Extend the system to sort more waste types (for example: plastic, paper, glass, and metal) to support real-world waste separation better.
 
 - Analyze collected classification data to improve future waste management decisions, such as pickup planning, bin placement, and waste trend monitoring.
+
+## Demonstration Video
+
+A demonstration video of the system in action is available at: [https://www.youtube.com/watch?v=example](https://www.youtube.com/watch?v=example)
 
 ## Conclusion
 
