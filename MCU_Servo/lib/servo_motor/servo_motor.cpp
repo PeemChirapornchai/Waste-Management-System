@@ -52,18 +52,18 @@ void servo_turn(servo_dir_e dir)
         //servo_2.write(base_angle_2);
         break;
     case SERVO_NON_BIO:
-        servo_1.write(base_angle_1 - 60);
+        servo_1.write(base_angle_1 - 75);
         //servo_2.write(base_angle_2 + 45);
         break;
     case SERVO_BIO:
-        servo_1.write(base_angle_1 + 60);
+        servo_1.write(base_angle_1 + 75);
         //servo_2.write(base_angle_2 - 45);
         break;
     default:
         break;
     }
 
-    delay(1000);
+    delay(1500);
 }
 
 void servo_return_to_home()
