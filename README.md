@@ -269,7 +269,7 @@ Location: x:24, y:16, w:8, h:8
 8. **Send data to server for dashboard monitoring**
    - The camera MCU also uploads captured images and metadata (timestamp, detected class, confidence) to a server via HTTP for dashboard monitoring.
 
-9. **Store data in mongoDB Database**
+9. **Store data in MongoDB Database**
    - The camera MCU also sends the label, confidence of the prediction, position, and received timestamp to be stored in a MongoDB database for further analysis. 
 
 ## Dashboard and Monitoring
