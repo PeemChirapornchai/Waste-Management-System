@@ -68,14 +68,21 @@ The Waste Management System is an AIoT-based solution designed to optimize waste
 
 ### Core Components
 
-| Component                         | Quantity | Purpose                                                                                                |
-| --------------------------------- | -------- | ------------------------------------------------------------------------------------------------------ |
-| LilyGo T-SIMCAM ESP32-S3          | 1        | Microcontroller with camera module for inferencing and sending data to Cucumber RS                     |
-| Cucumber RS                       | 1        | Microcontroller for receiving data from LilyGo T-SIMCAM ESP32-S3 and controlling actuators             |
-| Personal Computer (for Dashboard) | 1        | For monitoring and visualizing classification data and system status through a dashboard interface     |
-| Servo Motors                      | 1        | Actuator for controlling the separation of type of waste for Biodegradable and Non-Biodegradable waste |
+| Component                                        | Quantity | Purpose                                                                                                |
+| ------------------------------------------------ | -------- | ------------------------------------------------------------------------------------------------------ |
+| Waste bins (Biodegradable and Non-Biodegradable) | 1        | Physical bins or channels for sorted waste disposal                                                    |
+| LilyGo T-SIMCAM ESP32-S3                         | 1        | Microcontroller with camera module for inferencing and sending data to Cucumber RS                     |
+| Cucumber RS                                      | 1        | Microcontroller for receiving data from LilyGo T-SIMCAM ESP32-S3 and controlling actuators             |
+| Personal Computer (for Dashboard)                | 1        | For monitoring and visualizing classification data and system status through a dashboard interface     |
+| Servo Motors                                     | 1        | Actuator for controlling the separation of type of waste for Biodegradable and Non-Biodegradable waste |
 
 ---
+
+### Waste Bins
+
+<img src="images/Waste_bin_1.jpg" width="200"> <img src="images/Waste_bin_2.jpg" width="200"> <img src="images/Waste_bin_3.jpg" width="200"> <img src="images/Waste_bin_4.jpg" width="200">
+
+- **Role**: Physical containers for sorted waste, with one bin for biodegradable waste and another for non-biodegradable waste.
 
 ### Microcontroller
 
@@ -395,7 +402,7 @@ All key parameters are defined in `platformio.ini` (firmware) and `MCU_Server/co
 
 ## Demonstration Video
 
-A demonstration video of the system in action is available at: [https://www.youtube.com/watch?v=example](https://www.youtube.com/watch?v=example)
+[![Watch the video](https://img.youtube.com/vi/A9zgshV7FqQ/maxresdefault.jpg)](https://youtube.com/shorts/A9zgshV7FqQ?feature=share)
 
 ## Conclusion
 
