@@ -145,7 +145,8 @@ The Waste Management System is an AIoT-based solution designed to optimize waste
   - A Python Django web server that exposes an HTTP `/upload` endpoint to receive images and metadata from the camera MCU, stores records in a SQLite database, and serves the dashboard page.
 - **Dashboard Interface**:
   - A web-based dashboard to visualize incoming classification commands and system status in near real time for monitoring and demonstration purposes.
-
+- **Database Storage in MongoDB**:
+  - Stores prediction results including label, confidence score, object position, and timestamp received from the camera MCU for future analysis and system evaluation.
 ## Project Structure
 
 The project is split into three independent modules and one shared library:
@@ -268,6 +269,9 @@ Location: x:24, y:16, w:8, h:8
 8. **Send data to server for dashboard monitoring**
    - The camera MCU also uploads captured images and metadata (timestamp, detected class, confidence) to a server via HTTP for dashboard monitoring.
 
+9. **Store data in mongoDB Database**
+   - The camera MCU also sends the label, confidence of the prediction, position, and received timestamp to be stored in a MongoDB database for further analysis. 
+
 ## Dashboard and Monitoring
 
 <img src="images/Dashboard_example.jpg" width="600">
@@ -282,7 +286,7 @@ _Summary:_
 3. Helps operators quickly check if the communication pipeline is active during testing.
 4. Supports basic monitoring of behavior trends such as repeated class output over short periods.
 
-## Django Database
+## MongoDB Database
 
 <img src="images/Database.jpg" width="600">
 
