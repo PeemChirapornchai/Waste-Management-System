@@ -282,6 +282,10 @@ _Summary:_
 3. Helps operators quickly check if the communication pipeline is active during testing.
 4. Supports basic monitoring of behavior trends such as repeated class output over short periods.
 
+## Django Database
+
+<img src="images/Database.jpg" width="600">
+
 ## How to Run
 
 ### Prerequisites
