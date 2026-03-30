@@ -402,7 +402,7 @@ All key parameters are defined in `platformio.ini` (firmware) and `MCU_Server/co
 
 ## Demonstration Video
 
-<video src="images/Demo_vdo.mp4" width="600" controls></video>
+[![Watch the video](https://img.youtube.com/vi/A9zgshV7FqQ/maxresdefault.jpg)](https://youtube.com/shorts/A9zgshV7FqQ?feature=share)
 
 ## Conclusion
 
