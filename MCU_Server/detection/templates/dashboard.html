@@ -17,7 +17,9 @@
     <div class="stage" style="padding-top: 20px; display: flex; justify-content: center;">
       <article class="panel" style="width: 100%; max-width: 500px; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); text-align: center;">
           <h2 style="font-size: 1.1rem; margin-bottom: 10px;">Latest Detection</h2>
-          <div id="img-status" style="font-size: 0.8rem; margin-bottom: 10px; color: #888;">Waiting for detection...</div>
+          <div id="img-status" style="font-size: 0.8rem; margin-bottom: 5px; color: #888;">Waiting for detection...</div>
+          <div id="img-confidence" style="font-size: 0.9rem; font-weight: bold; margin-bottom: 10px; color: #ee6c4d;"></div> 
+          
           <div style="line-height: 0; display: flex; justify-content: center;">
               <img id="camera-feed" src="" width="100%" style="border-radius: 12px; border: 2px solid #3d5a80; display:none; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
           </div>
@@ -118,21 +120,6 @@
     <script src="{% static 'detection/js/dashboard.js' %}"></script>
     
     <script>
-        // function fetchLatestImage() {
-        //     fetch('/api/latest-image')
-        //         .then(res => res.json())
-        //         .then(data => {
-        //             if (data.url && data.url !== "") {
-        //                 const img = document.getElementById('camera-feed');
-        //                 const status = document.getElementById('img-status');
-        //                 img.src = data.url + '?t=' + new Date().getTime(); 
-        //                 img.style.display = 'block'; 
-        //                 status.innerText = "Captured at: " + new Date().toLocaleTimeString();
-        //                 status.style.color = "#48bb78";
-        //             }
-        //         })
-        //         .catch(err => console.error("Fetch error:", err));
-        // }
         function fetchLatestImage() {
             fetch('/api/latest-image')
                 .then(res => res.json())
@@ -140,19 +127,26 @@
                     if (data.url && data.url !== "") {
                         const img = document.getElementById('camera-feed');
                         const status = document.getElementById('img-status');
-                
+                        const confDisplay = document.getElementById('img-confidence'); // ส่วนที่เพิ่ม
+
                         img.src = data.url + '?t=' + new Date().getTime(); 
                         img.style.display = 'block'; 
                 
-                // Use time that sent from server (real capture time)
                         if (data.time) {
                             status.innerText = "Captured at: " + data.time;
                         }
+
+                        // ส่วนที่เพิ่ม: แสดงค่า Confidence (แปลงเป็น %)
+                        if (data.confidence) {
+                            let probPercent = (parseFloat(data.confidence) * 100).toFixed(2);
+                            confDisplay.innerText = "Confidence: " + probPercent + "%";
+                        }
+                        
                         status.style.color = "#48bb78";
                     }
                 })
                 .catch(err => console.error("Fetch error:", err));
-}
+        }
         setInterval(fetchLatestImage, 2000);
     </script>
   </body>
