@@ -418,3 +418,6 @@ All key parameters are defined in `platformio.ini` (firmware) and `MCU_Server/co
 ## Conclusion
 
 The Waste Management System project demonstrates the integration of AIoT technologies to enhance waste segregation and management. By automating the process, the system aims to improve efficiency, reduce operational costs, and promote environmental sustainability.
+
+## Additional illustrations
+<img src="images/Additional illustrations.png" width="600">
